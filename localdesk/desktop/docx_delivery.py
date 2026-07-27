@@ -75,6 +75,8 @@ class LibreOfficeDocxRenderer:
     def render(self, docx_path: Path, output_dir: Path) -> RenderCheck:
         if not self.soffice_path:
             raise DocxDeliveryError("未找到 LibreOffice/soffice，无法完成 DOCX 实际渲染检查")
+        docx_path = docx_path.resolve(strict=False)
+        output_dir = output_dir.resolve(strict=False)
         output_dir.mkdir(parents=True, exist_ok=True)
         profile_dir = output_dir / "libreoffice-profile"
         profile_dir.mkdir(exist_ok=True)

@@ -17,6 +17,7 @@
 | [OfficeBench 300 条任务统计](officebench_300_task_analysis.md) | 固定 commit 的应用、操作、文件、Evaluator 与链路频率 | 离线静态分析 |
 | [Final Sprint 1：Excel/CSV 与环境检查](phase7_sprint1_excel_environment.md) | 结构化表格工具、测试证据与 OfficeBench B2B 环境阻塞 | Excel 已完成，环境待重启恢复 |
 | [Final Sprint 2：DOCX/PDF 与本地邮件草稿](phase7_sprint2_office_artifacts.md) | DOCX 读取、正式 PDF 交付、无发送能力的 `.eml` 草稿 | 已完成，Docker 环境仍待重启恢复 |
+| [Final Hero Demo：报销核对](phase7_hero_reimbursement_demo.md) | XLSX + PDF + DOCX → 问题清单 + PDF + EML + Trace | 合成 Demo 已真实跑通 |
 | [评测说明](../evaluation/README.md) | 评测集、运行方式与结果口径 | 持续积累 |
 | [重构总计划](../计划.md) | 阶段路线、验收标准和决策依据 | 当前有效 |
 | [v1 历史归档](archive/v1/README.md) | 改造前的设计、验收和展示材料 | 仅供追溯 |
