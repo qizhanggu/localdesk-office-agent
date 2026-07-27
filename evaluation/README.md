@@ -90,3 +90,13 @@ python evaluation/run_phase4_evaluation.py
 ```
 
 dry-run 只校验 commit、任务哈希、字段转换、目录约定和官方环境可用性；不会创建运行目录、调用 Runtime/模型或执行官方 Evaluator。`tests/test_officebench_adapter.py` 使用自建 fixture 验证 Adapter 契约，不能解释为 OfficeBench 任务通过。
+
+## Final Sprint 1：Excel/CSV 产品工具
+
+`SpreadsheetSkill` 和 `SpreadsheetWorkflow` 提供授权目录内的 CSV/XLSX 读取、筛选、稳定排序、去重、列更新、staging、哈希复核、确定性输出校验和确认交付。它是通用产品能力，不依赖 OfficeBench。
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests\test_spreadsheet.py -q
+```
+
+详细的用户能力、测试与 Docker/WSL2 环境状态见 [`docs/phase7_sprint1_excel_environment.md`](../docs/phase7_sprint1_excel_environment.md)。

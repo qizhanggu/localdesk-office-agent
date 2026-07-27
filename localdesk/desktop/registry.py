@@ -47,6 +47,19 @@ class FileMoveParams(BaseModel):
     destination: str
 
 
+class SpreadsheetInspectParams(BaseModel):
+    path: str
+
+
+class SpreadsheetStageParams(BaseModel):
+    source: str
+    destination: str
+
+
+class SpreadsheetCommitParams(BaseModel):
+    destination: str
+
+
 class DesktopObserveParams(BaseModel):
     window_title: str
 
@@ -186,6 +199,9 @@ def create_desktop_registry(service: DesktopTaskService | None = None) -> Deskto
         retryable=True,
         timeout_seconds=30,
     ))
+    registry.register(DesktopToolDefinition("spreadsheet.inspect", "读取授权 CSV/XLSX 的工作表、表头、行列与单元格。", SpreadsheetInspectParams, ActionKind.READ, "R0", True, False, True, True, 30))
+    registry.register(DesktopToolDefinition("spreadsheet.stage_transform", "在 task staging 创建经确定性校验的新 CSV/XLSX，不覆盖输入。", SpreadsheetStageParams, ActionKind.WRITE, "R2", False, True, False, False, 60))
+    registry.register(DesktopToolDefinition("spreadsheet.commit", "确认后将哈希未变化且通过校验的工作簿交付到 output。", SpreadsheetCommitParams, ActionKind.WRITE, "R3", False, True, False, False, 30))
     registry.register(DesktopToolDefinition(
         name="browser.open",
         description="读取用户授权域名内的公开 HTTPS 页面，不登录、不提交表单。",

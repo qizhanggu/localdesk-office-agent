@@ -185,6 +185,9 @@ def test_desktop_registry_does_not_leak_coding_tools() -> None:
         "files.scan",
         "files.move",
         "files.rollback_move",
+        "spreadsheet.inspect",
+        "spreadsheet.stage_transform",
+        "spreadsheet.commit",
         "desktop.uia.observe",
         "desktop.uia.set_text",
         "desktop.uia.invoke",
@@ -204,6 +207,6 @@ def test_desktop_cli_creates_trace_only(workspace: DesktopWorkspace, capsys: pyt
     )
     assert exit_code == 0
     output = capsys.readouterr().out
-    assert "desktop tools registered: 13" in output
+    assert "desktop tools registered: 16" in output
     assert "no file operation" in output
     assert len(list(workspace.task_root.iterdir())) == 1
