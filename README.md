@@ -33,7 +33,10 @@ managed_roots -> FileOrganizationWorkflow（dry-run + 哈希预览 -> 独立确�
 
 ## 当前能力与非目标
 
-- 支持 MD/TXT/可提取文本 PDF 的轻量检索，引用定位到行号或页码。
+- 支持 MD/TXT/DOCX/可提取文本 PDF 的轻量检索，引用定位到行号、段落/表格行或页码。
+- 支持 CSV/XLSX 的结构化读取、筛选、稳定排序、去重、列更新、确定性校验与新文件交付；不驱动 Excel GUI。
+- 支持 DOCX 正文/标题/表格读取，以及经过 LibreOffice 渲染检查后的正式 PDF 交付；PDF 覆盖仍需确认。
+- 支持生成带附件的标准 `.eml` 本地邮件草稿；它不连接邮箱、不登录、不发送邮件。
 - 支持确定性带引用 Markdown 草稿和确认交付。
 - 支持 Grounded LLM JSON 渲染：每段必须给出本次检索内真实 citation_id；幻觉引用、无引用、解析失败、超时均拒绝暂存。
 - 支持受控文件整理 CLI：dry-run 预览、执行前 SHA-256 复核、确认后的串行 move、operation journal、独立确认 rollback；详见 [Phase 4](docs/phase4_file_organization.md)。

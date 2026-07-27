@@ -77,7 +77,7 @@ class DesktopPolicyGuard:
             return PolicyDecision("deny", f"禁止覆盖已有文件: {destination}")
         if self.workspace.is_task_artifact(destination):
             return PolicyDecision("allow", "任务 staging 内的草稿写入")
-        if action.skill in {"document.commit_markdown", "document.commit_docx"} and args.get("auto_deliver") is True:
+        if action.skill in {"document.commit_markdown", "document.commit_docx", "mail.commit_eml"} and args.get("auto_deliver") is True:
             return PolicyDecision("allow", "新建低风险产物允许自动交付；覆盖和外发仍需确认")
         return PolicyDecision("ask", "写入产物需要确认", requires_confirmation=True)
 

@@ -4,9 +4,11 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from docx import Document
+
 from localdesk.desktop.workspace import DesktopWorkspace
 
-_SUPPORTED_SUFFIXES = {".md", ".txt", ".pdf"}
+_SUPPORTED_SUFFIXES = {".md", ".txt", ".pdf", ".docx"}
 _TOKEN_RE = re.compile(r"[a-zA-Z0-9_]+|[\u4e00-\u9fff]")
 
 
@@ -41,7 +43,12 @@ class KnowledgeSkill:
                 if not self.workspace.can_read(resolved):
                     continue
                 relative = resolved.relative_to(root).as_posix()
-                chunks.extend(self._pdf_chunks(resolved, relative) if resolved.suffix.lower() == ".pdf" else self._text_chunks(resolved, relative))
+                if resolved.suffix.lower() == ".pdf":
+                    chunks.extend(self._pdf_chunks(resolved, relative))
+                elif resolved.suffix.lower() == ".docx":
+                    chunks.extend(self._docx_chunks(resolved, relative))
+                else:
+                    chunks.extend(self._text_chunks(resolved, relative))
         self._chunks = chunks
         return len(chunks)
 
@@ -73,6 +80,23 @@ class KnowledgeSkill:
             text = (page.extract_text() or "").strip()
             if text:
                 result.append(SourceChunk(f"{relative}:P{index}", relative, f"page {index}", text))
+        return result
+
+    def _docx_chunks(self, path: Path, relative: str) -> list[SourceChunk]:
+        try:
+            document = Document(path)
+        except Exception as exc:
+            return [SourceChunk(f"{relative}:unreadable", relative, "unreadable DOCX", f"[DOCX text extraction failed: {exc}]")]
+        result: list[SourceChunk] = []
+        for index, paragraph in enumerate(document.paragraphs, start=1):
+            text = paragraph.text.strip()
+            if text:
+                result.append(SourceChunk(f"{relative}:P{index}", relative, f"paragraph {index}", text))
+        for table_index, table in enumerate(document.tables, start=1):
+            for row_index, row in enumerate(table.rows, start=1):
+                text = " | ".join(cell.text.strip() for cell in row.cells).strip(" |")
+                if text:
+                    result.append(SourceChunk(f"{relative}:T{table_index}R{row_index}", relative, f"table {table_index} row {row_index}", text))
         return result
 
 
