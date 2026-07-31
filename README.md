@@ -1,6 +1,6 @@
 # LocalDesk Agent
 
-面向用户**明确授权目录与公开域名**的受控 Office Agent：检索本地资料和指定网页，生成带来源的 Markdown/DOCX，按风险分级交付，并用可回放 Trace 记录全过程。当前主业务 Demo 是“岗位 JD + 本地履历 → 定向求职材料”。
+面向用户**明确授权目录与公开域名**的受控 Office Agent：检索本地资料和指定网页，生成带来源的 Markdown/DOCX，按风险分级交付，并用可回放 Trace 记录全过程。当前主业务 Demo 是“AI 资讯周报 PPT”：三路研究、编辑去重、可编辑 PPTX、PDF、人工确认页、未发送邮件草稿、Memory 与完整 Trace；实现与真实性边界见 [Phase 8](docs/phase8_ai_weekly_briefing.md)。保留“岗位 JD + 本地履历 → 定向求职材料”和报销核对 Demo。
 
 ## 来源与独立改造范围
 

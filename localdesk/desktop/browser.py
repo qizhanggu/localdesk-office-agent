@@ -108,7 +108,11 @@ class HttpBrowserAdapter:
                 url,
                 follow_redirects=False,
                 timeout=self.timeout_seconds,
-                headers={"User-Agent": "LocalDeskOfficeAgent/0.2", "Accept": "text/html, text/plain;q=0.9"},
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0 Safari/537.36",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+                },
             ) as response:
                 if response.is_redirect:
                     destination = response.headers.get("location", "unknown destination")
