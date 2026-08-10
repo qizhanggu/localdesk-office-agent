@@ -1,0 +1,33 @@
+{
+  "version": "weekly-human-review-v1",
+  "frozen_at": "2026-08-10",
+  "sample_size": {
+    "minimum_target": 10,
+    "maximum": 20,
+    "note": "If fewer than 10 real cards exist, review all available cards but do not claim the target was met."
+  },
+  "sampling": {
+    "method": "category_round_robin_then_seeded_sha256",
+    "seed": "localdesk-weekly-review-v1",
+    "reason": "Keep category coverage while making selection reproducible."
+  },
+  "allowed_decisions": [
+    "keep",
+    "delete",
+    "modify"
+  ],
+  "required_for_reviewed_rows": [
+    "reviewer",
+    "reviewed_at"
+  ],
+  "modify_rule": "edited_summary must be present and different from original_summary",
+  "metrics": [
+    "reviewed_count",
+    "completion_rate",
+    "keep_count",
+    "delete_count",
+    "modify_count",
+    "human_delete_or_modify_count"
+  ],
+  "truthfulness_rule": "Blank rows are unreviewed. If no rows are reviewed, human outcome metrics remain null."
+}

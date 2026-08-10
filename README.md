@@ -70,6 +70,20 @@ flowchart LR
 
 最新冻结小样本结果为 18/18 通过；三路并行在受控延迟夹具中相对串行加速 2.999 倍。该数字只说明同一批确定性任务的工程行为，不代表公开 Benchmark 或真实用户成功率。详见 [评测报告](docs/product_eval_report_v2.md)。
 
+导出真实资讯卡片的人审表：
+
+```powershell
+.\.venv\Scripts\python.exe evaluation\weekly_human_review.py export `
+  --cards <TASK_DIR>\staging\news_cards.json `
+  --output .localdesk\human-review\weekly-review.csv
+
+.\.venv\Scripts\python.exe evaluation\weekly_human_review.py summarize `
+  --review .localdesk\human-review\weekly-review.csv `
+  --output .localdesk\human-review\weekly-review-summary.json
+```
+
+空白行不会计入用户反馈；没有完成任何评审时，`human_delete_or_modify_count` 保持 `null`。
+
 ## 真实性边界
 
 - 三个 Research Agent 是按“大模型 / Agent 产品 / 产业应用”分工的确定性并发模块，不是三个真实 LLM。

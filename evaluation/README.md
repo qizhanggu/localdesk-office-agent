@@ -14,6 +14,22 @@
 
 第一版 `product_tasks_v1.json` / `product_eval_v1.json` 因研究覆盖比较器只统计配置角色而存在设计缺陷，保留用于实验追溯，不作为最终结果。
 
+### 人工抽查记录
+
+[human_review_protocol_v1.json](human_review_protocol_v1.json) 冻结了 10～20 张资讯卡片的抽查规则。脚本只负责生成空白表和统计真实填写结果，不代替人做判断：
+
+```powershell
+.\.venv\Scripts\python.exe evaluation\weekly_human_review.py export `
+  --cards <TASK_DIR>\staging\news_cards.json `
+  --output .localdesk\human-review\weekly-review.csv
+
+.\.venv\Scripts\python.exe evaluation\weekly_human_review.py summarize `
+  --review .localdesk\human-review\weekly-review.csv `
+  --output .localdesk\human-review\weekly-review-summary.json
+```
+
+评审人只能填写 `keep`、`delete` 或 `modify`；已评审行必须填写评审人和 ISO 时间，`modify` 还必须提供不同的新摘要。没有真实填写时，人工删除/修改数保持 `null`。脚本只能校验记录格式，不能验证 `reviewer` 身份，因此正式报告还需要保存实际评审流程说明。
+
 评测分为两层：
 
 1. **回归基线**：`run_baseline.py` 离线运行稳定核心测试，并保存真实结果；它证明已有受控闭环没有回归。
