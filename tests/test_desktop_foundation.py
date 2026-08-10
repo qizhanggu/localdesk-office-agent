@@ -187,6 +187,7 @@ def test_desktop_registry_does_not_leak_coding_tools() -> None:
         "document.inspect_docx",
         "document.stage_pdf",
         "document.commit_pdf",
+        "document.commit_pptx",
         "mail.stage_eml",
         "mail.commit_eml",
         "files.scan",
@@ -214,6 +215,6 @@ def test_desktop_cli_creates_trace_only(workspace: DesktopWorkspace, capsys: pyt
     )
     assert exit_code == 0
     output = capsys.readouterr().out
-    assert "desktop tools registered: 21" in output
+    assert "desktop tools registered: 22" in output
     assert "no file operation" in output
     assert len(list(workspace.task_root.iterdir())) == 1

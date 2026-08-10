@@ -8,16 +8,20 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import date, datetime
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Iterable
 
 from localdesk.desktop.trace_store import TaskTraceStore
 from localdesk.desktop.workspace import DesktopWorkspace
 from localdesk.desktop.skills.office_artifacts import EmailDraftSkill
-from localdesk.desktop.models import ActionKind, PlannedAction, Task
+from localdesk.desktop.artifact_bundle import ArtifactBundleDelivery
+from localdesk.desktop.models import Task
+from localdesk.desktop.registry import create_desktop_registry
 from localdesk.desktop.service import DesktopTaskService
 from localdesk.desktop.browser import BrowserAdapter
 
@@ -41,6 +45,14 @@ class NewsCard:
     url: str
     summary: str
     value: str
+    evidence_quote: str = ""
+    accessed_at: str = ""
+    content_hash: str = ""
+    source_mode: str = ""
+    evidence_supported: bool = False
+    event_id: str = ""
+    related_urls: tuple[str, ...] = ()
+    merged_card_ids: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -58,13 +70,28 @@ class WeeklyBriefingMemory:
 
     def load(self) -> dict:
         if not self.path.exists():
-            return {"seen": {}, "feedback": []}
-        return json.loads(self.path.read_text(encoding="utf-8"))
+            return {"seen": {}, "events": {}, "feedback": [], "preferences": {}}
+        data = json.loads(self.path.read_text(encoding="utf-8"))
+        data.setdefault("seen", {})
+        data.setdefault("events", {})
+        data.setdefault("feedback", [])
+        data.setdefault("preferences", {})
+        return data
 
     def save(self, cards: Iterable[NewsCard], feedback: Iterable[dict] = ()) -> None:
         data = self.load()
-        data["seen"].update({card.card_id: {"title": card.title, "published": card.published, "url": card.url} for card in cards})
-        data["feedback"].extend(feedback)
+        card_list = list(cards)
+        feedback_list = list(feedback)
+        data["seen"].update({card.card_id: {"title": card.title, "published": card.published, "url": card.url} for card in card_list})
+        data["events"].update({card.event_id: {"title": card.title, "published": card.published, "urls": [card.url, *card.related_urls]} for card in card_list if card.event_id})
+        by_id = {card.card_id: card for card in card_list}
+        for item in feedback_list:
+            card = by_id.get(str(item.get("card_id", "")))
+            decision = str(item.get("decision", "")).casefold()
+            if card and decision in {"keep", "delete"}:
+                delta = 1 if decision == "keep" else -1
+                data["preferences"][card.category] = int(data["preferences"].get(card.category, 0)) + delta
+        data["feedback"].extend(feedback_list)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
 
@@ -80,6 +107,10 @@ class WeeklyBriefingReviewer:
             if not start <= published <= end: blockers.append(f"超出本周时间范围: {card.title}")
             if not card.url.startswith("https://"): blockers.append(f"缺少 HTTPS 来源: {card.title}")
             if not card.summary or not card.value: blockers.append(f"资讯卡片不完整: {card.title}")
+            if not card.evidence_quote or not card.accessed_at or len(card.content_hash) != 64:
+                blockers.append(f"证据链字段不完整: {card.title}")
+            elif not card.evidence_supported:
+                blockers.append(f"摘要或标题未被引用片段支持: {card.title}")
             key = _normalize(card.title)
             if key in seen: blockers.append(f"重复资讯: {card.title}")
             seen.add(key)
@@ -98,23 +129,12 @@ class WeeklyBriefingWorkflow:
         self.reviewer = WeeklyBriefingReviewer()
         self.browser = browser
 
-    def create_task(self, service: DesktopTaskService, start: date, end: date) -> Task:
-        """Create a real Runtime task; delivery remains awaiting human confirmation."""
-        task = service.create_task(f"创建本周AI资讯汇报（{start.isoformat()} 至 {end.isoformat()}）")
-        final = self.workspace.output_root / f"本周AI资讯汇报_{end.isoformat()}.pptx"
-        service.set_plan(task, "三路研究后生成本地 PPTX/PDF/邮件草稿；只在人工确认后交付。", [
-            PlannedAction(
-                action_id="deliver-weekly-pptx",
-                skill="document.commit_pptx",
-                kind=ActionKind.WRITE,
-                args={"destination": str(final)},
-                summary="将已审核的周报 PPTX 交付到输出目录",
-                preview={"destination": str(final), "risk": "new_file_delivery"},
-            )
-        ])
-        return task
+    def create_task(self, service: DesktopTaskService, start: date, end: date, user_query: str | None = None) -> Task:
+        """Create the Runtime task; approval is requested after files are reviewed."""
+        return service.create_task(user_query or f"创建本周AI资讯汇报（{start.isoformat()} 至 {end.isoformat()}）")
 
-    def run(self, task_id: str, start: date, end: date, sources: list[NewsSource], feedback: Iterable[dict] = ()) -> dict:
+    def run(self, service: DesktopTaskService, task: Task, start: date, end: date, sources: list[NewsSource], feedback: Iterable[dict] = ()) -> dict:
+        task_id = task.task_id
         task_dir = self.workspace.task_dir(task_id); staging = task_dir / "staging"; staging.mkdir(parents=True, exist_ok=True)
         self.trace_store.append(task_id, "weekly_briefing_started", {"start": start.isoformat(), "end": end.isoformat(), "research_agents": ["model", "agent_product", "industry"]})
         by_category = {name: [s for s in sources if s.category == name] for name in ("model", "agent_product", "industry")}
@@ -123,8 +143,8 @@ class WeeklyBriefingWorkflow:
         researched = [card for group, _reads in groups for card in group]
         source_reads = [read for _group, reads in groups for read in reads]
         for category, (group, reads) in zip(by_category, groups): self.trace_store.append(task_id, "research_agent_finished", {"agent": category, "card_count": len(group), "source_reads": reads})
-        memory = self.memory.load(); cards = self._edit(researched, memory.get("seen", {}))
-        self.trace_store.append(task_id, "editor_finished", {"input_cards": len(researched), "selected_cards": len(cards), "memory_seen": len(memory.get("seen", {}))})
+        memory = self.memory.load(); cards = self._edit(researched, memory.get("seen", {}), memory.get("events", {}), memory.get("preferences", {}))
+        self.trace_store.append(task_id, "editor_finished", {"input_cards": len(researched), "selected_cards": len(cards), "memory_seen": len(memory.get("seen", {})), "memory_events": len(memory.get("events", {})), "preferences": memory.get("preferences", {}), "merged_cards": sum(len(card.merged_card_ids) for card in cards)})
         cards_path = staging / "news_cards.json"; cards_path.write_text(json.dumps([asdict(c) for c in cards], ensure_ascii=False, indent=2), encoding="utf-8")
         (staging / "source_reads.json").write_text(json.dumps(source_reads, ensure_ascii=False, indent=2), encoding="utf-8")
         markdown = staging / "weekly_briefing.md"; markdown.write_text(_markdown(start, end, cards), encoding="utf-8")
@@ -146,8 +166,31 @@ class WeeklyBriefingWorkflow:
         )
         eml = Path(draft.staged_path)
         self.memory.save(cards, feedback)
-        self.trace_store.append(task_id, "weekly_briefing_reviewed", {"review": asdict(review), "pptx": str(pptx), "pdf": str(pdf), "email_draft": str(eml), "render_dir": str(render_dir)})
-        return {"cards": cards, "pptx": pptx, "pdf": pdf, "markdown": markdown, "review": review, "confirmation": confirm, "email": eml, "memory": self.memory.path}
+        self.trace_store.append(task_id, "weekly_briefing_reviewed", {"review": asdict(review), "pptx": str(pptx), "pdf": str(pdf), "pdf_exporter": getattr(self, "_last_pdf_exporter", "test_or_unknown"), "email_draft": str(eml), "render_dir": str(render_dir)})
+        if review.approved:
+            registry = create_desktop_registry(service)
+            delivery = ArtifactBundleDelivery(service, self.workspace, registry)
+            artifacts = [
+                delivery.capture(kind="pptx", staged_path=pptx, final_filename=f"本周AI资讯汇报_{end.isoformat()}.pptx", summary="交付已审核的 AI 资讯周报 PPTX"),
+                delivery.capture(kind="pdf", staged_path=pdf, final_filename=f"本周AI资讯汇报_{end.isoformat()}.pdf", summary="交付已审核的 AI 资讯周报 PDF"),
+                delivery.capture(kind="eml", staged_path=eml, final_filename=f"AI资讯周报_{end.isoformat()}_未发送草稿.eml", summary="交付明确标记为未发送的邮件草稿"),
+            ]
+            service.set_plan(
+                task,
+                "生成并审核周报后，人工确认一次，再交付 PPTX、PDF 和未发送邮件草稿。",
+                [
+                    delivery.action(action_id="weekly-commit-pptx", skill="document.commit_pptx", artifact=artifacts[0]),
+                    delivery.action(action_id="weekly-commit-pdf", skill="document.commit_pdf", artifact=artifacts[1]),
+                    delivery.action(action_id="weekly-commit-eml", skill="mail.commit_eml", artifact=artifacts[2]),
+                ],
+            )
+        else:
+            service.fail(task, "周报 Reviewer 未通过，未进入人工确认与正式交付。", event_type="weekly_briefing_review_failed")
+        return {"task": task, "cards": cards, "pptx": pptx, "pdf": pdf, "markdown": markdown, "review": review, "confirmation": confirm, "email": eml, "memory": self.memory.path}
+
+    def confirm_and_deliver(self, service: DesktopTaskService, task: Task, *, approved: bool) -> Task:
+        registry = create_desktop_registry(service)
+        return ArtifactBundleDelivery(service, self.workspace, registry).confirm_and_deliver(task, approved=approved)
 
     def _research(self, category: str, sources: list[NewsSource], start: date, end: date) -> tuple[list[NewsCard], list[dict]]:
         reads: list[dict] = []
@@ -156,20 +199,46 @@ class WeeklyBriefingWorkflow:
             try: published=date.fromisoformat(item.published)
             except ValueError: continue
             if start <= published <= end:
+                quote = ""
+                accessed_at = ""
+                content_hash = ""
+                source_mode = "preconfigured_without_source_read"
+                evidence_supported = False
                 if self.browser:
                     chunk = self.browser.open(item.url)
-                    reads.append({"url": chunk.url, "title": chunk.title, "accessed_at": chunk.accessed_at, "content_hash": chunk.content_hash, "excerpt": chunk.excerpt(), "source_mode": getattr(self.browser, "source_mode", "live_https")})
+                    quote = _support_excerpt(chunk.text, item.summary)
+                    accessed_at = chunk.accessed_at
+                    content_hash = chunk.content_hash
+                    source_mode = getattr(self.browser, "source_mode", "live_https")
+                    evidence_supported = (
+                        bool(content_hash)
+                        and _normalize_evidence(item.summary) in _normalize_evidence(quote)
+                        and _title_supported(item.title, f"{chunk.title} {chunk.text}")
+                    )
+                    reads.append({"url": chunk.url, "title": chunk.title, "accessed_at": chunk.accessed_at, "content_hash": chunk.content_hash, "excerpt": quote, "source_mode": source_mode, "evidence_supported": evidence_supported})
                 card_id=hashlib.sha256((item.title+item.url).encode()).hexdigest()[:16]
-                cards.append(NewsCard(card_id, category, item.title, item.published, item.url, item.summary, item.value))
+                event_id=_event_id(item.title)
+                cards.append(NewsCard(card_id, category, item.title, item.published, item.url, item.summary, item.value, quote, accessed_at, content_hash, source_mode, evidence_supported, event_id))
         return cards, reads
 
     @staticmethod
-    def _edit(cards: list[NewsCard], seen: dict) -> list[NewsCard]:
-        chosen=[]; titles=set()
-        for card in sorted(cards, key=lambda c: (c.published, c.title), reverse=True):
-            key=_normalize(card.title)
-            if card.card_id in seen or key in titles: continue
-            titles.add(key); chosen.append(card)
+    def _edit(cards: list[NewsCard], seen: dict, seen_events: dict | None = None, preferences: dict | None = None) -> list[NewsCard]:
+        seen_events = seen_events or {}
+        preferences = preferences or {}
+        candidates = [card for card in cards if card.card_id not in seen and (not card.event_id or card.event_id not in seen_events)]
+        candidates.sort(key=lambda card: (int(preferences.get(card.category, 0)), card.evidence_supported, card.published, card.title), reverse=True)
+        chosen: list[NewsCard] = []
+        for card in candidates:
+            match_index = next((index for index, existing in enumerate(chosen) if _same_event(existing, card)), None)
+            if match_index is None:
+                chosen.append(card)
+                continue
+            existing = chosen[match_index]
+            chosen[match_index] = replace(
+                existing,
+                related_urls=tuple(dict.fromkeys([*existing.related_urls, card.url, *card.related_urls])),
+                merged_card_ids=tuple(dict.fromkeys([*existing.merged_card_ids, card.card_id, *card.merged_card_ids])),
+            )
         # retain one freshest evidence-backed card per role for an executive weekly deck
         result=[]
         for category in ("model", "agent_product", "industry"):
@@ -180,7 +249,7 @@ class WeeklyBriefingWorkflow:
         source_script=Path(__file__).with_name("weekly_briefing_presentation.mjs")
         bundled_node=Path(r"C:\Users\Admin\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe")
         node=str(bundled_node if bundled_node.is_file() else shutil.which("node"))
-        skill_dir=Path(r"C:\Users\Admin\.codex\plugins\cache\openai-primary-runtime\presentations\26.730.11710\skills\presentations")
+        skill_dir=_presentation_skill_dir()
         setup=skill_dir / "container_tools" / "setup_artifact_tool_workspace.mjs"
         if not setup.is_file():
             raise RuntimeError("PPTX 生成环境缺少 artifact-tool workspace 初始化脚本")
@@ -195,8 +264,7 @@ class WeeklyBriefingWorkflow:
         result=subprocess.run([node, str(script), str(cards), str(output), start.isoformat(), end.isoformat()], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120, env=artifact_env)
         if result.returncode: raise RuntimeError("PPTX 生成失败: " + (result.stderr or result.stdout or "unknown error")[-800:])
 
-    @staticmethod
-    def _export_pdf(pptx: Path) -> Path:
+    def _export_pdf(self, pptx: Path) -> Path:
         out=pptx.parent / (pptx.stem+".pdf")
         try:
             import win32com.client  # type: ignore[import-not-found]
@@ -207,11 +275,54 @@ class WeeklyBriefingWorkflow:
             finally:
                 presentation.Close()
                 app.Quit()
+            self._last_pdf_exporter = "powerpoint_com"
         except Exception as exc:
-            raise RuntimeError(f"PowerPoint PDF 导出失败: {exc}") from exc
+            soffice = _find_soffice()
+            if not soffice:
+                raise RuntimeError(f"PPTX PDF 导出失败：PowerPoint={exc}；未找到 LibreOffice 回退") from exc
+            try:
+                self._export_pdf_with_libreoffice(pptx, out, soffice)
+                self._last_pdf_exporter = "libreoffice_headless_fallback"
+            except Exception as libreoffice_exc:
+                raise RuntimeError(
+                    f"PPTX PDF 导出失败：PowerPoint={exc}；LibreOffice={libreoffice_exc}"
+                ) from exc
         if not out.exists():
-            raise RuntimeError("PowerPoint PDF 导出失败：未生成 PDF 文件")
+            raise RuntimeError("PPTX PDF 导出失败：未生成 PDF 文件")
         return out
+
+    @staticmethod
+    def _export_pdf_with_libreoffice(pptx: Path, out: Path, soffice: str) -> None:
+        profile = pptx.parent.parent / "libreoffice-pptx-profile"
+        profile.mkdir(exist_ok=True)
+        export_dir = pptx.parent / "pdf_export"
+        export_dir.mkdir(exist_ok=True)
+        converted_out = export_dir / out.name
+        converted = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "localdesk.desktop.pptx_pdf_export",
+                "--soffice",
+                soffice,
+                "--pptx",
+                str(pptx),
+                "--output-dir",
+                str(export_dir),
+                "--profile",
+                str(profile),
+            ],
+            capture_output=True,
+            timeout=120,
+        )
+        for _ in range(60):
+            if converted_out.is_file() and converted_out.stat().st_size:
+                break
+            time.sleep(0.25)
+        if not converted_out.is_file() or not converted_out.stat().st_size:
+            detail = (converted.stderr or converted.stdout or b"unknown error")[-600:].decode("utf-8", errors="replace")
+            raise RuntimeError(f"LibreOffice exit={converted.returncode}: {detail}")
+        shutil.copy2(converted_out, out)
 
     @staticmethod
     def _render_pptx(pptx: Path, out: Path) -> None:
@@ -235,7 +346,7 @@ class WeeklyBriefingWorkflow:
     def _overflow_check(pptx: Path) -> list[str]:
         if not pptx.stat().st_size:
             return ["PPTX 为空"]
-        checker=Path(r"C:\Users\Admin\.codex\plugins\cache\openai-primary-runtime\presentations\26.730.11710\skills\presentations\container_tools\slides_test.py")
+        checker=_presentation_skill_dir() / "container_tools" / "slides_test.py"
         if not checker.is_file():
             return ["找不到 PPTX 结构检查工具"]
         artifact_python=Path(r"C:\Users\Admin\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe")
@@ -247,6 +358,103 @@ class WeeklyBriefingWorkflow:
 
 
 def _normalize(text: str) -> str: return re.sub(r"\W+", "", text).lower()
+
+
+_EVENT_STOPWORDS = {
+    "a", "an", "and", "at", "by", "for", "from", "in", "into", "of",
+    "on", "the", "to", "with", "new", "announces", "announced", "launches",
+    "launched", "introduces", "introduced",
+}
+
+
+def _event_tokens(title: str) -> set[str]:
+    """Return stable title features for conservative cross-source event matching."""
+    normalized = " ".join(title.casefold().split())
+    latin = {
+        token
+        for token in re.findall(r"[a-z0-9]+", normalized)
+        if len(token) >= 2 and token not in _EVENT_STOPWORDS
+    }
+    cjk_text = "".join(re.findall(r"[\u4e00-\u9fff]", normalized))
+    cjk_bigrams = {cjk_text[index : index + 2] for index in range(max(0, len(cjk_text) - 1))}
+    return latin | cjk_bigrams
+
+
+def _event_id(title: str) -> str:
+    """Create a deterministic event fingerprint, not a general semantic embedding."""
+    tokens = sorted(_event_tokens(title))
+    canonical = " ".join(tokens) if tokens else _normalize(title)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16]
+
+
+def _same_event(left: NewsCard, right: NewsCard) -> bool:
+    """Conservatively merge title variants that describe the same event."""
+    if left.event_id and right.event_id and left.event_id == right.event_id:
+        return True
+    left_normalized = _normalize(left.title)
+    right_normalized = _normalize(right.title)
+    if left_normalized == right_normalized:
+        return True
+    left_tokens = _event_tokens(left.title)
+    right_tokens = _event_tokens(right.title)
+    union = left_tokens | right_tokens
+    jaccard = len(left_tokens & right_tokens) / len(union) if union else 0.0
+    sequence_ratio = SequenceMatcher(None, left_normalized, right_normalized).ratio()
+    if jaccard >= 0.60 or sequence_ratio >= 0.82:
+        return True
+    same_url = left.url.rstrip("/").casefold() == right.url.rstrip("/").casefold()
+    return same_url and (jaccard >= 0.35 or sequence_ratio >= 0.55)
+
+
+def _normalize_evidence(text: str) -> str:
+    return re.sub(r"\s+", " ", text).strip().casefold()
+
+
+def _support_excerpt(text: str, claim: str, limit: int = 360) -> str:
+    clean_text = " ".join(text.split())
+    clean_claim = " ".join(claim.split())
+    index = clean_text.casefold().find(clean_claim.casefold())
+    if index < 0:
+        return clean_text[:limit]
+    start = max(0, index - 60)
+    return clean_text[start : start + max(limit, len(clean_claim) + 120)]
+
+
+def _title_supported(title: str, evidence: str) -> bool:
+    tokens = [token for token in re.findall(r"[A-Za-z0-9\u4e00-\u9fff]+", title.casefold()) if len(token) >= 3]
+    if not tokens:
+        return False
+    normalized = evidence.casefold()
+    return any(token in normalized for token in tokens)
+
+
+def _presentation_skill_dir() -> Path:
+    configured = os.environ.get("LOCALDESK_PRESENTATIONS_SKILL_DIR")
+    if configured:
+        return Path(configured).expanduser().resolve()
+    cache = Path.home() / ".codex" / "plugins" / "cache" / "openai-primary-runtime" / "presentations"
+    candidates = sorted(
+        (path / "skills" / "presentations" for path in cache.glob("*") if path.is_dir()),
+        key=lambda path: path.parent.parent.name,
+        reverse=True,
+    )
+    for candidate in candidates:
+        if (candidate / "container_tools" / "setup_artifact_tool_workspace.mjs").is_file():
+            return candidate
+    return cache / "missing" / "skills" / "presentations"
+
+
+def _find_soffice() -> str | None:
+    candidates = (
+        r"D:\Apps\LibreOffice\program\soffice.com",
+        r"C:\Program Files\LibreOffice\program\soffice.com",
+        shutil.which("soffice"),
+        r"D:\Apps\LibreOffice\program\soffice.exe",
+        r"C:\Program Files\LibreOffice\program\soffice.exe",
+    )
+    return next((str(Path(path)) for path in candidates if path and Path(path).is_file()), None)
+
+
 def _markdown(start: date, end: date, cards: list[NewsCard]) -> str:
     lines=[f"# 本周AI资讯汇报\n\n时间范围：{start} 至 {end}\n"]
     for c in cards: lines += [f"## {c.title}", f"- 日期：{c.published}", f"- 来源：{c.url}", f"- 摘要：{c.summary}", f"- 价值判断：{c.value}\n"]

@@ -1,0 +1,57 @@
+{
+  "audit_version": "live-weekly-hero-v3-audit-1",
+  "audited_at": "2026-08-10",
+  "task_id": "32c52de1-bee6-496e-a46b-e0eac4527c50",
+  "status": "succeeded",
+  "time_window": {
+    "start": "2026-07-20",
+    "end": "2026-08-10"
+  },
+  "frozen_source_config": {
+    "path": "evaluation/frozen_weekly_sources_v3.json",
+    "sha256": "f1bc7b2975e51f7a845acc1030f984bb7e494f38be116d44130355e00dc20a03"
+  },
+  "real_source_read": {
+    "url": "https://openai.com/news/rss.xml",
+    "accessed_at": "2026-08-10T06:55:59.402886+00:00",
+    "content_hash": "ca28c4102a138e9317d2eea7a95e5137a885f16544d5f3eae9d34b742d709990",
+    "cards": 3,
+    "source_modes": [
+      "official_rss_item_fallback"
+    ],
+    "article_html_successes": 0,
+    "article_html_failures": 3,
+    "failure_reason": "The three official article pages returned HTTP 403; evidence was taken from the official RSS item descriptions and marked as fallback."
+  },
+  "selected_titles": [
+    "Improving GPT-5.6 Sol in ChatGPT—and expanding access to GPT-5.6 Luna for free users",
+    "New ways to learn and teach with ChatGPT Work and Codex",
+    "How HSP GRUPPE builds AI capabilities for tax advisory"
+  ],
+  "delivery": {
+    "artifact_count": 3,
+    "pptx_bytes": 28529,
+    "pdf_bytes": 206132,
+    "pdf_pages": 6,
+    "rendered_slide_pngs": 6,
+    "eml_bytes": 318522,
+    "eml_draft_header": true
+  },
+  "trace": {
+    "event_count": 30,
+    "sha256": "100e65e62c4e06474ad296ebdb461f8aea809d1c782c52f7180ef2afd1bbf784",
+    "local_ignored_path": ".localdesk/weekly-live-v3-final-20260810/tasks/32c52de1-bee6-496e-a46b-e0eac4527c50/events.jsonl",
+    "known_run_level_summary_issue": "The run-level source_mode field said official_rss_plus_live_html while all three item-level modes were official_rss_item_fallback. The code now emits source_modes, live_html_count, and rss_fallback_count; this historical trace is preserved unchanged."
+  },
+  "post_fix_failure_run": {
+    "task_id": "6026002d-dc7c-453f-b055-fb1b340c97a5",
+    "status": "failed",
+    "reason": "TLS handshake timed out on all three frozen RSS attempts; no offline or preconfigured answer was substituted."
+  },
+  "claims_boundary": [
+    "This proves one real official RSS read and one complete Office delivery, not a stable public-web success rate.",
+    "The three research roles are deterministic concurrent modules, not LLM agents.",
+    "No external LLM was called; token and model cost are zero.",
+    "The original successful artifacts and full trace stay under the git-ignored .localdesk directory."
+  ]
+}

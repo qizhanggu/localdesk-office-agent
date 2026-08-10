@@ -7,6 +7,7 @@ from copy import copy
 from dataclasses import dataclass
 from pathlib import Path
 
+from docx import Document
 from openpyxl import Workbook, load_workbook
 from pypdf import PdfReader
 
@@ -38,6 +39,13 @@ class ReimbursementResult:
     matched_count: int
     flagged_count: int
     source_hashes: dict[str, str]
+    applied_rules: dict[str, float | None]
+
+
+@dataclass(frozen=True)
+class ReimbursementRules:
+    max_payment_amount: float | None
+    amount_tolerance: float
 
 
 class ReimbursementSkill:
@@ -49,6 +57,7 @@ class ReimbursementSkill:
     def analyze(self, payments_xlsx: str | Path, invoice_pdfs: list[str | Path], rules_docx: str | Path) -> ReimbursementResult:
         payments = self._file(payments_xlsx, ".xlsx")
         rules = self._file(rules_docx, ".docx")
+        parsed_rules = self._read_rules(rules)
         invoices = [self._file(path, ".pdf") for path in invoice_pdfs]
         if not invoices: raise ReimbursementError("至少需要一张发票 PDF")
         records = self._read_invoices(invoices)
@@ -69,11 +78,21 @@ class ReimbursementSkill:
             if not invoice_no or not candidates: status, detail = "missing_invoice", "未找到对应发票号"
             elif len(candidates) > 1: status, detail = "duplicate_invoice", f"发票号在 {len(candidates)} 个 PDF 中重复"
             elif candidates[0].amount is None: status, detail = "unconfirmed", "发票金额无法从 PDF 文本确认"
-            elif abs(candidates[0].amount - amount) > 0.005: status, detail = "amount_mismatch", f"付款 {amount:.2f}，发票 {candidates[0].amount:.2f}"
+            elif abs(candidates[0].amount - amount) > parsed_rules.amount_tolerance: status, detail = "amount_mismatch", f"付款 {amount:.2f}，发票 {candidates[0].amount:.2f}"
+            elif parsed_rules.max_payment_amount is not None and amount > parsed_rules.max_payment_amount: status, detail = "policy_limit_exceeded", f"付款 {amount:.2f} 超过规则上限 {parsed_rules.max_payment_amount:.2f}"
             else: status, detail = "matched", "发票号和金额一致"
             findings.append(PaymentFinding(payment_id, invoice_no, amount, status, detail))
         hashes = {str(payments): _hash(payments), str(rules): _hash(rules), **{str(path): _hash(path) for path in invoices}}
-        return ReimbursementResult(findings, sum(item.status == "matched" for item in findings), sum(item.status != "matched" for item in findings), hashes)
+        return ReimbursementResult(
+            findings,
+            sum(item.status == "matched" for item in findings),
+            sum(item.status != "matched" for item in findings),
+            hashes,
+            {
+                "max_payment_amount": parsed_rules.max_payment_amount,
+                "amount_tolerance": parsed_rules.amount_tolerance,
+            },
+        )
 
     def write_flagged_xlsx(self, task_id: str, filename: str, result: ReimbursementResult) -> Path:
         target = self.workspace.task_dir(task_id) / "staging" / _name(filename, ".xlsx")
@@ -95,6 +114,36 @@ class ReimbursementSkill:
             amount = re.search(r"(?:total|amount\s*due)\s*[:：]?\s*[$¥]?\s*([0-9]+(?:\.[0-9]{1,2})?)", text, re.I)
             if no: result.append(InvoiceRecord(no.group(1), float(amount.group(1)) if amount else None, str(path)))
         return result
+
+    @staticmethod
+    def _read_rules(path: Path) -> ReimbursementRules:
+        document = Document(path)
+        chunks = [paragraph.text for paragraph in document.paragraphs]
+        for table in document.tables:
+            chunks.extend(cell.text for row in table.rows for cell in row.cells)
+        text = "\n".join(chunks)
+        max_match = re.search(
+            r"(?:max_payment_amount|单笔报销金额上限)\s*[:：=]\s*([0-9]+(?:\.[0-9]+)?)",
+            text,
+            re.I,
+        )
+        tolerance_match = re.search(
+            r"(?:amount_tolerance|金额容差)\s*[:：=]\s*([0-9]+(?:\.[0-9]+)?)",
+            text,
+            re.I,
+        )
+        if not max_match and not tolerance_match:
+            raise ReimbursementError(
+                "规则文档未包含可识别规则；请使用 max_payment_amount / 单笔报销金额上限，"
+                "或 amount_tolerance / 金额容差。"
+            )
+        maximum = float(max_match.group(1)) if max_match else None
+        tolerance = float(tolerance_match.group(1)) if tolerance_match else 0.005
+        if maximum is not None and maximum <= 0:
+            raise ReimbursementError("单笔报销金额上限必须大于 0。")
+        if tolerance < 0:
+            raise ReimbursementError("金额容差不能小于 0。")
+        return ReimbursementRules(maximum, tolerance)
 
     def _file(self, value: str | Path, suffix: str) -> Path:
         path = self.workspace.resolve_path(value)

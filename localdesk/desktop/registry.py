@@ -51,6 +51,10 @@ class CommitPdfParams(BaseModel):
     destination: str
 
 
+class CommitPptxParams(BaseModel):
+    destination: str
+
+
 class StageEmlParams(BaseModel):
     destination: str
     recipient_count: int
@@ -288,6 +292,7 @@ def create_desktop_registry(service: DesktopTaskService | None = None) -> Deskto
     registry.register(DesktopToolDefinition("document.inspect_docx", "读取授权 DOCX 的正文、标题和表格，不修改源文件。", DocxInspectParams, ActionKind.READ, "R0", True, False, True, True, 30))
     registry.register(DesktopToolDefinition("document.stage_pdf", "将授权 DOCX 渲染并完成 PDF 结构与页面检查后写入 task staging。", StagePdfParams, ActionKind.WRITE, "R2", False, True, False, False, 120))
     registry.register(DesktopToolDefinition("document.commit_pdf", "确认后将已检查且哈希未变化的 staging PDF 交付到 output。", CommitPdfParams, ActionKind.WRITE, "R3", False, True, False, False, 30))
+    registry.register(DesktopToolDefinition("document.commit_pptx", "确认后将已检查且哈希未变化的 staging PPTX 交付到 output。", CommitPptxParams, ActionKind.WRITE, "R3", False, True, False, False, 30))
     registry.register(DesktopToolDefinition("mail.stage_eml", "生成仅本地保存、不发送的标准 .eml 邮件草稿并写入 task staging。", StageEmlParams, ActionKind.WRITE, "R2", False, True, False, False, 30))
     registry.register(DesktopToolDefinition("mail.commit_eml", "交付只读本地 .eml 草稿；没有发送邮件能力。", CommitEmlParams, ActionKind.WRITE, "R2", False, True, False, False, 30))
     registry.register(DesktopToolDefinition(

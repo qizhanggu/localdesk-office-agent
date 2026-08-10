@@ -1,63 +1,88 @@
 # LocalDesk Agent
 
-面向用户**明确授权目录与公开域名**的受控 Office Agent：检索本地资料和指定网页，生成带来源的 Markdown/DOCX，按风险分级交付，并用可回放 Trace 记录全过程。当前主业务 Demo 是“AI 资讯周报 PPT”：三路研究、编辑去重、可编辑 PPTX、PDF、人工确认页、未发送邮件草稿、Memory 与完整 Trace；实现与真实性边界见 [Phase 8](docs/phase8_ai_weekly_briefing.md)。保留“岗位 JD + 本地履历 → 定向求职材料”和报销核对 Demo。
+LocalDesk 是一个面向个人办公场景的本地 AI 助手。用户用自然语言提出任务，系统生成一个短计划，选择已有办公 Workflow，并在受控 Runtime 中完成资料读取、文件生成、人工确认和正式交付。
+
+它的定位不是“再做一套安全框架”，而是：**真正完成办公任务，同时默认可控、可审计、可确认、可验证、可恢复。**
+
+## 当前可运行的产品能力
+
+- 主 Hero Demo：AI 资讯周报。读取冻结白名单中的官方 RSS/网页，生成带证据的资讯卡片，再交付 PPTX、PDF 和明确标记为未发送的 EML 草稿。
+- 辅助 Demo：报销核对。读取 XLSX 流水、发票 PDF 和确定性 DOCX 规则，输出问题清单 XLSX、PDF 和未发送 EML 草稿。
+- 极简 Main Agent：自然语言 → intent → 3～6 步计划 → 选择现有 Workflow。它不是开放式无限规划 Agent。
+- Runtime：Registry、Schema 检查、Policy Guard、Approval、Staging、SHA-256 复核、Verification、Trace、文件整理 journal/rollback。
+- Office 工具：结构化读写 XLSX、DOCX、PDF、PPTX 和 EML；PPT/PDF 会进行结构及逐页渲染检查。
+
+## 当前架构
+
+```mermaid
+flowchart LR
+    U["用户自然语言任务"] --> A["Thin Main Agent<br/>intent + 短计划"]
+    A --> W["Workflow / Skill<br/>周报、报销、文件整理"]
+    W --> R["Controlled Runtime<br/>Registry + Policy + Approval"]
+    R --> V["Verification + Trace"]
+    V --> O["PPTX / PDF / XLSX / EML"]
+```
+
+详细架构见 [当前产品架构](docs/current_architecture.md)。
+
+## 快速运行
+
+先只看 Main Agent 如何理解任务，不生成文件：
+
+```powershell
+.\.venv\Scripts\python.exe -m localdesk.desktop.main_agent_demo --task "帮我整理本周 AI 资讯并生成 PPT" --plan-only
+```
+
+运行真实来源周报。来源集合和时间窗在运行前冻结；若网络或来源失败，任务会失败并保留证据，不会冒充成功：
+
+```powershell
+.\.venv\Scripts\python.exe -m localdesk.desktop.weekly_briefing_live_demo `
+  --root .localdesk\weekly-live `
+  --start 2026-07-20 `
+  --end 2026-08-10
+
+.\.venv\Scripts\python.exe -m localdesk.desktop.weekly_briefing_live_demo `
+  --root .localdesk\weekly-live `
+  --confirm <TASK_ID>
+```
+
+没有网络时，可运行明确标记为 `manual_public_snapshot` 的离线回退 Demo：
+
+```powershell
+.\.venv\Scripts\python.exe -m localdesk.desktop.weekly_briefing_demo --root .localdesk\weekly-offline
+.\.venv\Scripts\python.exe -m localdesk.desktop.weekly_briefing_demo --root .localdesk\weekly-offline --confirm <TASK_ID>
+```
+
+运行报销核对：
+
+```powershell
+.\.venv\Scripts\python.exe -m localdesk.desktop.reimbursement_demo --root .localdesk\reimbursement
+.\.venv\Scripts\python.exe -m localdesk.desktop.reimbursement_demo --root .localdesk\reimbursement --confirm <TASK_ID>
+```
+
+运行冻结的 18 条产品评测：
+
+```powershell
+.\.venv\Scripts\python.exe evaluation\run_product_evaluation.py `
+  --manifest evaluation\product_tasks_v2.json `
+  --output evaluation\results\product_eval_v2.json
+```
+
+最新冻结小样本结果为 18/18 通过；三路并行在受控延迟夹具中相对串行加速 2.999 倍。该数字只说明同一批确定性任务的工程行为，不代表公开 Benchmark 或真实用户成功率。详见 [评测报告](docs/product_eval_report_v2.md)。
+
+## 真实性边界
+
+- 三个 Research Agent 是按“大模型 / Agent 产品 / 产业应用”分工的确定性并发模块，不是三个真实 LLM。
+- 当前联网研究使用冻结官方 RSS 和网页读取；正文页失败时，只允许使用带摘要的官方 RSS 条目，并标记为 `official_rss_item_fallback`。
+- 摘要是证据片段的确定性截取，价值判断会明确提示人工判断；没有调用外部 LLM，因此 Token 和模型成本为 0。
+- Editor 使用保守的事件指纹、标题相似度、证据状态和日期排序，不宣称通用语义理解。
+- Memory 保存历史卡片、事件指纹、保留/删除反馈和分类偏好；“持续追踪”尚未完成。
+- Reviewer 能检查证据字段及“标题/摘要是否能在引用片段中找到”，但不是完整的事实核查器。
+- 系统不自动发送邮件，不支持任意 GUI、任意 Shell、删除或覆盖用户文件。
+- OfficeBench 仅做过可行性与静态分析，未把它包装成已跑通的公开 Benchmark 成绩。
 
 ## 来源与独立改造范围
 
-本仓库基于 MewCode Python Coding Agent 学习型底座改造。原始代码及来源标注保留，不宣称从零开发。本人独立完成的 LocalDesk 改造集中在 `localdesk/desktop/`：任务状态机、路径授权、deny-first Policy Guard、Trace、资料检索、staging/哈希确认交付、Grounded LLM 渲染约束、文件整理与回滚核心工作流、测试与文档。
+仓库基于 MewCode Python Coding Agent 学习型底座改造，原始代码和来源标注保留，不宣称从零开发。LocalDesk 的主要独立改造集中在 `localdesk/desktop/`、`evaluation/` 和对应测试、文档中。
 
-## 架构
-
-```text
-用户任务
-  -> Knowledge Skill（仅 read_roots，返回 citation_id）
-  -> Deterministic / Grounded LLM Renderer（只接收检索片段）
-  -> Document Skill（task staging + SHA-256）
-  -> Policy Guard + 风险分级
-  -> 新建本地产物自动交付 / 高风险动作独立确认
-  -> output_root + task Trace + 只读看板
-
-managed_roots -> FileOrganizationWorkflow（dry-run + 哈希预览 -> 独立确认 -> journal -> 独立确认 rollback）
-```
-
-## 安全模型
-
-| 目录 | 权限 |
-|---|---|
-| `read_roots` | 仅检索资料 |
-| `managed_roots` | 仅确定性整理流程在独立确认后 move；禁止删除、覆盖和越权 |
-| `output_root` | 新建且不覆盖的 Markdown / DOCX 可自动交付；覆盖拒绝 |
-| `task_root` | task.json、events.jsonl、staging、operation journal |
-
-越权、覆盖、删除、Shell 和未经声明的网络操作直接拒绝。所有文档先写 staging 并复核 SHA-256；新建本地产物可自动交付，批量移动仍需 dry-run 后确认，桌面输入/点击仍需确认，对外发送/提交尚未实现。每个任务都有 task_id、计划、策略决定、执行验证和产物 Trace。
-
-## 当前能力与非目标
-
-- 支持 MD/TXT/DOCX/可提取文本 PDF 的轻量检索，引用定位到行号、段落/表格行或页码。
-- 支持 CSV/XLSX 的结构化读取、筛选、稳定排序、去重、列更新、确定性校验与新文件交付；不驱动 Excel GUI。
-- 支持 DOCX 正文/标题/表格读取，以及经过 LibreOffice 渲染检查后的正式 PDF 交付；PDF 覆盖仍需确认。
-- 支持生成带附件的标准 `.eml` 本地邮件草稿；它不连接邮箱、不登录、不发送邮件。
-- 支持确定性带引用 Markdown 草稿和确认交付。
-- 支持 Grounded LLM JSON 渲染：每段必须给出本次检索内真实 citation_id；幻觉引用、无引用、解析失败、超时均拒绝暂存。
-- 支持受控文件整理 CLI：dry-run 预览、执行前 SHA-256 复核、确认后的串行 move、operation journal、独立确认 rollback；详见 [Phase 4](docs/phase4_file_organization.md)。
-- 支持仅面向白名单测试窗口的 Windows UIA Demo：确认后输入构造文本、调用低风险按钮、验证窗口状态；UIA 不稳定时停止并人工接管，详见 [Phase 5](docs/phase5_desktop_computer_use.md)。
-- 支持岗位 JD + 本地履历证据的确定性求职材料闭环：匹配/差距、用户反馈新版本、Markdown/DOCX、真实渲染检查、低风险交付和 Trace；详见 [Phase 6B](docs/phase6b_job_materials.md)。
-- 支持只读 HTML 任务看板；数据直接来自真实 `task.json` 和 `events.jsonl`。
-- 当前网页能力是“受控网页读取 + 页内链接发现”，不是完整 Browser Agent；尚无搜索引擎查询或跨站自动检索岗位。
-- 不支持：任意 Shell、删除、覆盖、登录/验证码/支付、邮件自动发送、表单自动提交、任意第三方 GUI、扫描件 OCR。
-
-## Phase 6A 可复现 Demo
-
-```powershell
-.\.venv\Scripts\python.exe evaluation\run_phase6a_evaluation.py
-.\.venv\Scripts\python.exe evaluation\run_phase6a_demo.py
-.\.venv\Scripts\python.exe evaluation\run_real_web_trace.py
-```
-
-三条命令分别验证统一离线回归、构造数据 + 真实 LibreOffice 的求职材料闭环，以及真实公开网页 Trace。结果保存在 `evaluation/results/`；Demo 输入均为公开或构造内容。
-
-## 测试与评估
-
-当前 Phase 6A 统一回归结果：**54 passed，1 skipped，0 failed**，真实结果见 [phase6a_baseline.json](evaluation/results/phase6a_baseline.json)。跳过项是当前 Windows 账户无法创建真实 symlink；mock 注入拒绝路径已通过。真实 LibreOffice Demo 与真实公开网页读取也已分别留档，但尚未声称真实求职材料质量、任意网页搜索成功率或第三方 GUI 成功率。
-
-当前重构阶段证据见 [文档入口](docs/README.md)；旧项目材料位于 [v1 历史归档](docs/archive/v1/README.md)，不应与当前能力混用。
+文档入口见 [docs/README.md](docs/README.md)，面试时可直接对照 [面试讲解手册](docs/interview_guide.md)。

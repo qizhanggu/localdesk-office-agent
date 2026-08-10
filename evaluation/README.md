@@ -1,5 +1,19 @@
 # LocalDesk Evaluation
 
+## 当前冻结产品评测 v2
+
+这一层直接回答“LocalDesk 现在能否按预定规则完成关键产品行为”。18 条任务在运行前固定输入、期望状态或产物和确定性检查项，不因为失败临时换题。
+
+```powershell
+.\.venv\Scripts\python.exe evaluation\run_product_evaluation.py `
+  --manifest evaluation\product_tasks_v2.json `
+  --output evaluation\results\product_eval_v2.json
+```
+
+2026-08-10 最终全量重跑结果为 18/18。详细口径见 [产品评测报告 v2](../docs/product_eval_report_v2.md)。其中的 2.999 倍并行加速来自 40 ms 延迟夹具，不是公网速度；100% 证据支持率来自构造证据，不是真实资讯质量；本轮没有 LLM 调用，Token 和成本为 0，未开展真实用户修改统计。
+
+第一版 `product_tasks_v1.json` / `product_eval_v1.json` 因研究覆盖比较器只统计配置角色而存在设计缺陷，保留用于实验追溯，不作为最终结果。
+
 评测分为两层：
 
 1. **回归基线**：`run_baseline.py` 离线运行稳定核心测试，并保存真实结果；它证明已有受控闭环没有回归。

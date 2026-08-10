@@ -1,40 +1,76 @@
-# Phase 8：AI 资讯周报 PPT
+# Phase 8：AI 资讯周报 Hero Demo
 
-## 已完成的真实闭环
+## 用户现在能做什么
 
-LocalDesk 可以创建一项“本周 AI 资讯汇报”Runtime 任务，三个职责隔离的研究模块并发处理“大模型研究、Agent 产品、产业应用”三类来源；编辑器按发布时间排序、按标题去重，并用历史记忆过滤已出现的卡片。输出先留在任务 staging，交付动作停在 `awaiting_confirmation`，不会自动把 PPT、PDF 或邮件发送到外部。
+用户可以让 LocalDesk 在冻结时间窗内读取白名单官方 RSS/网页，整理“大模型、Agent 产品、产业应用”三类资讯，生成可编辑 PPTX、PDF、逐页渲染图、人工确认页和未发送邮件草稿。所有正式产物先留在 staging，Reviewer 通过后才进入人工确认；确认时重新检查路径、SHA-256 和文件结构，再一次性交付三份文件。
 
-每张资讯卡片包含标题、发布日期、来源 URL、摘要和价值判断。Trace 保存研究职责、编辑选择、来源 URL、访问时间、内容哈希与引用片段。第一版的三个研究模块是确定性职责模块，不宣称调用了三个 LLM 或实现了开放式网页搜索。
+## 真实研究链路
 
-## 2026-07-20 至 2026-07-26 演示
+运行前冻结 [来源配置 v3](../evaluation/frozen_weekly_sources_v3.json)，每个研究职责保存自己的来源、关键词、时间窗和步骤。系统会：
 
-最终成功任务：`069f7e95-bc59-4e66-9cc0-d13674a80b52`，产物位于被 Git 忽略的本地 staging：
+1. 读取官方 RSS，并保存 URL、访问时间和原始内容哈希；
+2. 按冻结时间窗和关键词筛选；
+3. 尝试读取官方正文；
+4. 正文失败时，仅在官方 RSS 自带足够摘要的情况下回退，并标记 `official_rss_item_fallback`；
+5. 任一方向没有合格结果时，整个研究任务失败并保留证据，不改来源、不套预置答案。
 
-- `本周AI资讯汇报.pptx`：5 页、可编辑的蓝色企业风格 PPTX；
-- `本周AI资讯汇报.pdf`：通过独立 Microsoft PowerPoint COM 实例导出；
-- `ppt_render/slide-*.png`：PDF 逐页渲染检查图；
-- `AI资讯周报_未发送草稿.eml`：包含 PPTX 和 PDF 两个附件的 RFC 兼容本地草稿；
-- `人工确认页面.html`、`news_cards.json`、`source_reads.json`、`review.json` 与 `events.jsonl`。
+三路研究是确定性并发职责模块，不是三个调用 LLM 的 Agent。摘要来自原始证据的确定性截取，当前没有模型 Token 和成本。
 
-来源均为公开 Microsoft Blog 页面：
+## Editor、Memory 和 Reviewer
 
-1. [Powering America's Genesis Mission](https://blogs.microsoft.com/blog/2026/07/22/powering-americas-genesis-mission-microsofts-commitment-to-scientific-discovery/)；
-2. [Microsoft expands Azure AI and HPC infrastructure with AMD](https://blogs.microsoft.com/blog/2026/07/20/microsoft-expands-azure-ai-and-hpc-infrastructure-with-amd/)。
+- Editor：用保守事件指纹、标题相似度和 URL 合并跨来源标题变体，再按证据状态、日期和反馈偏好选择；不是通用语义去重。
+- Memory：保存 `card_id`、事件指纹、历史 URL、用户 keep/delete 反馈和分类偏好，用于跨周过滤；尚未实现定时“持续追踪”。
+- Reviewer：保留时间窗、HTTPS、字段、三类覆盖、PPTX/PDF 结构和逐页渲染检查；新增引用片段、访问时间、内容哈希，以及标题/摘要能否在证据中找到的确定性检查。它不是完整事实核查器。
 
-本机直连 HTTPS 在本次运行中分别出现 403 和 TLS EOF，因此最终演示使用了明确标记为 `manual_public_snapshot` 的公开来源快照；Trace 不把它说成实时抓取成功。正常产品路径仍保留 `HttpBrowserAdapter`，网络条件正常时会将实时只读网页结果写入同一份 Trace schema。
+## 真实运行证据
 
-## Reviewer 与 Memory
+2026-08-10 的成功任务 `32c52de1-bee6-496e-a46b-e0eac4527c50`：
 
-Reviewer 阻断：日期超出范围、非 HTTPS 来源、空摘要或价值判断、重复标题、少于三个方向、PPTX/PDF 缺失或过小、PPTX 结构检查失败。PPTX 还经 PDF 逐页 PNG 渲染并人工查看；最终版本已消除正文末尾异常换行。
+- 真实读取 `https://openai.com/news/rss.xml`，访问时间为 `2026-08-10T06:55:59.402886+00:00`，内容哈希为 `ca28c410...d709990`；
+- 三个方向各选择 1 条资讯，三张卡片都保存发布日期、文章 URL、引用片段、访问时间、内容哈希和来源模式；
+- 三个正文页均返回 403，因此三张卡片都明确标记为 `official_rss_item_fallback`，没有冒充原文读取成功；
+- Reviewer 通过，生成 6 页 PPT/PDF 和 6 张逐页渲染图；
+- 人工确认后任务状态为 `succeeded`，正式交付 PPTX、PDF 和未发送 EML 草稿。
 
-`weekly_briefing_memory.json` 保存已选卡片和用户保留/删除反馈。对同一数据第二次运行时，编辑器过滤掉全部已见卡片，Reviewer 因少于三个方向拒绝交付；这证明 Memory 实际影响选择，而不是仅写入一个无用日志。
+本地证据位于 Git 忽略目录：
 
-## 运行与边界
+`D:\Users\Admin\Desktop\localdesk-agent\.localdesk\weekly-live-v3-final-20260810`
 
-运行：
+可提交的审计摘要见 [live_weekly_hero_v3_audit.json](../evaluation/results/live_weekly_hero_v3_audit.json)。
+
+随后发现汇总 Trace 把这次运行笼统写成了 `official_rss_plus_live_html`，与明细中的三个 RSS 回退不一致。代码已修正为分别记录 `live_html_count`、`rss_fallback_count` 和实际 `source_modes`。修正后的一次重跑遇到 RSS TLS 握手超时，任务按设计失败并保留三次尝试的错误，没有回退到离线预置数据。这个失败任务为 `6026002d-dc7c-453f-b055-fb1b340c97a5`。
+
+## 运行方式
+
+真实来源版：
 
 ```powershell
-.\.venv\Scripts\python.exe -m localdesk.desktop.weekly_briefing_demo
+.\.venv\Scripts\python.exe -m localdesk.desktop.weekly_briefing_live_demo `
+  --root .localdesk\weekly-live `
+  --start 2026-07-20 `
+  --end 2026-08-10
 ```
 
-该命令只产生本地 staging 产物，不发送邮件、不使用华为内部资料、不登录网站，也不进行开放式网络搜索。当前 PDF 导出依赖本机已安装的 Microsoft PowerPoint；若不可用，任务应明确失败而不是伪造 PDF。
+命令输出 `task_id`。检查确认页、PPTX、PDF 后执行：
+
+```powershell
+.\.venv\Scripts\python.exe -m localdesk.desktop.weekly_briefing_live_demo `
+  --root .localdesk\weekly-live `
+  --confirm <TASK_ID>
+```
+
+离线回退版：
+
+```powershell
+.\.venv\Scripts\python.exe -m localdesk.desktop.weekly_briefing_demo --root .localdesk\weekly-offline
+```
+
+离线版始终标记为 `manual_public_snapshot`，不能作为实时研究证据。
+
+## 当前没有做的事
+
+- 没有 Deep Research、开放搜索或复杂多 Agent 框架；
+- 没有真实 LLM 摘要或价值判断；
+- 没有自动发送邮件；
+- 没有把一次联网成功说成稳定成功率；
+- 没有完整结论—证据语义事实核查。

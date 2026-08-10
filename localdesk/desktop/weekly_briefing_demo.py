@@ -6,6 +6,7 @@ artifacts below ``.localdesk/weekly-ai-briefing-demo``.  It never sends email.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import hashlib
 from datetime import UTC, date, datetime
@@ -58,22 +59,24 @@ class PublicSourceSnapshotAdapter:
     source_mode = "manual_public_snapshot"
 
     def __init__(self, sources: list[NewsSource]) -> None:
-        self.sources = {source.url: source for source in sources}
+        self.sources: dict[str, list[NewsSource]] = {}
+        for source in sources:
+            self.sources.setdefault(source.url, []).append(source)
 
     def open(self, url: str) -> WebChunk:
-        source = self.sources[url]
-        text = f"{source.title}. {source.summary} {source.value}"
+        sources = self.sources[url]
+        text = " ".join(f"{source.title}. {source.summary} {source.value}" for source in sources)
         return WebChunk(
             chunk_id=f"snapshot:{hashlib.sha256(url.encode()).hexdigest()[:12]}",
             url=url,
-            title=source.title,
+            title=sources[0].title,
             text=text,
             accessed_at=datetime.now(UTC).isoformat(),
             content_hash=hashlib.sha256(text.encode("utf-8")).hexdigest(),
         )
 
 
-def run_demo(root: Path | None = None) -> dict:
+def run_demo(root: Path | None = None, *, main_agent_plan: dict[str, object] | None = None, user_query: str | None = None) -> dict:
     root = (root or Path.cwd() / ".localdesk" / "weekly-ai-briefing-demo").resolve()
     sources, output, tasks = root / "sources", root / "deliveries", root / "tasks"
     for directory in (sources, output, tasks):
@@ -86,8 +89,10 @@ def run_demo(root: Path | None = None) -> dict:
     service = DesktopTaskService(DesktopPolicyGuard(workspace), traces)
     workflow = WeeklyBriefingWorkflow(workspace, traces, browser=PublicSourceSnapshotAdapter(DEMO_SOURCES))
     start, end = date(2026, 7, 20), date(2026, 7, 26)
-    task = workflow.create_task(service, start, end)
-    result = workflow.run(task.task_id, start, end, DEMO_SOURCES)
+    task = workflow.create_task(service, start, end, user_query=user_query)
+    if main_agent_plan is not None:
+        traces.append(task.task_id, "main_agent_planned", main_agent_plan)
+    result = workflow.run(service, task, start, end, DEMO_SOURCES)
     return {
         "task_id": task.task_id,
         "task_status": task.status.value,
@@ -101,5 +106,31 @@ def run_demo(root: Path | None = None) -> dict:
     }
 
 
+def confirm_demo(task_id: str, root: Path | None = None, *, approved: bool = True) -> dict:
+    root = (root or Path.cwd() / ".localdesk" / "weekly-ai-briefing-demo").resolve()
+    sources, output, tasks = root / "sources", root / "deliveries", root / "tasks"
+    workspace = DesktopWorkspace(WorkspaceConfig(
+        read_roots=[sources], output_root=output, task_root=tasks,
+        browser_allowed_domains=["openai.com", "blogs.microsoft.com"],
+    ))
+    traces = TaskTraceStore(workspace)
+    service = DesktopTaskService(DesktopPolicyGuard(workspace), traces)
+    workflow = WeeklyBriefingWorkflow(workspace, traces)
+    task = traces.load_task_object(task_id)
+    workflow.confirm_and_deliver(service, task, approved=approved)
+    return {
+        "task_id": task.task_id,
+        "task_status": task.status.value,
+        "artifacts": [artifact.final_path for artifact in task.artifacts],
+        "trace": str(workspace.task_dir(task.task_id) / "events.jsonl"),
+    }
+
+
 if __name__ == "__main__":
-    print(json.dumps(run_demo(), ensure_ascii=False, indent=2))
+    parser = argparse.ArgumentParser(description="Run or confirm the LocalDesk weekly briefing demo.")
+    parser.add_argument("--root", type=Path)
+    parser.add_argument("--confirm", metavar="TASK_ID")
+    parser.add_argument("--reject", action="store_true")
+    args = parser.parse_args()
+    payload = confirm_demo(args.confirm, args.root, approved=not args.reject) if args.confirm else run_demo(args.root)
+    print(json.dumps(payload, ensure_ascii=False, indent=2))

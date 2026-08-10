@@ -93,11 +93,13 @@ class HttpBrowserAdapter:
         max_chars: int = 30_000,
         max_response_bytes: int = 1_000_000,
         client: httpx.Client | None = None,
+        allowed_redirect_domains: tuple[str, ...] = (),
     ) -> None:
         self.timeout_seconds = timeout_seconds
         self.max_chars = max_chars
         self.max_response_bytes = max_response_bytes
         self.client = client
+        self.allowed_redirect_domains = tuple(domain.casefold() for domain in allowed_redirect_domains)
 
     def open(self, url: str) -> WebChunk:
         owns_client = self.client is None
@@ -106,7 +108,7 @@ class HttpBrowserAdapter:
             with client.stream(
                 "GET",
                 url,
-                follow_redirects=False,
+                follow_redirects=bool(self.allowed_redirect_domains),
                 timeout=self.timeout_seconds,
                 headers={
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0 Safari/537.36",
@@ -114,6 +116,15 @@ class HttpBrowserAdapter:
                     "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
                 },
             ) as response:
+                if self.allowed_redirect_domains:
+                    for hop in [*response.history, response]:
+                        parsed = urlparse(str(hop.url))
+                        host = (parsed.hostname or "").casefold()
+                        if parsed.scheme != "https" or not any(
+                            host == domain or host.endswith("." + domain)
+                            for domain in self.allowed_redirect_domains
+                        ):
+                            raise BrowserError(f"重定向越出官方来源白名单：{hop.url}")
                 if response.is_redirect:
                     destination = response.headers.get("location", "unknown destination")
                     raise BrowserError(f"拒绝自动重定向到 {destination}; 请将最终 HTTPS URL 显式加入授权范围")
