@@ -123,6 +123,14 @@ Office 文件“能生成”不等于“能打开、版式正常”。LibreOffic
 
 ## 自己怎么演示
 
+最稳定的方式是先回放两次已完成任务的真实 Trace：
+
+```powershell
+.\demo\run_showcase.cmd
+```
+
+页面能切换 AI 周报和报销核对，并按 Plan、Workflow、Approval、Artifact、Trace 的顺序展示全过程。它是只读历史回放，会明确标记，不冒充实时执行。
+
 只看计划：
 
 ```powershell

@@ -1,66 +1,116 @@
-# LocalDesk Agent
+# LocalDesk — 可审计的本地办公 Agent
 
-LocalDesk 是一个面向个人办公场景的本地 AI 助手。用户用自然语言提出任务，系统生成一个短计划，选择已有办公 Workflow，并在受控 Runtime 中完成资料读取、文件生成、人工确认和正式交付。
+LocalDesk 接收一句自然语言任务，选择稳定的办公流程，读取本地文件或官方网页，并真正交付 PPTX、PDF、XLSX 和未发送邮件草稿。
 
-它的定位不是“再做一套安全框架”，而是：**真正完成办公任务，同时默认可控、可审计、可确认、可验证、可恢复。**
+它的核心不是“让 Agent 看起来很自主”，而是：**办公任务能完成，正式动作可确认，结果可验证，过程可追溯。**
 
-## 当前可运行的产品能力
+## 30 秒看 Demo
 
-- 主 Hero Demo：AI 资讯周报。读取冻结白名单中的官方 RSS/网页，生成带证据的资讯卡片，再交付 PPTX、PDF 和明确标记为未发送的 EML 草稿。
-- 辅助 Demo：报销核对。读取 XLSX 流水、发票 PDF 和确定性 DOCX 规则，输出问题清单 XLSX、PDF 和未发送 EML 草稿。
-- 极简 Main Agent：自然语言 → intent → 3～6 步计划 → 选择现有 Workflow。它不是开放式无限规划 Agent。
-- Runtime：Registry、Schema 检查、Policy Guard、Approval、Staging、SHA-256 复核、Verification、Trace、文件整理 journal/rollback。
-- Office 工具：结构化读写 XLSX、DOCX、PDF、PPTX 和 EML；PPT/PDF 会进行结构及逐页渲染检查。
+```powershell
+.\demo\run_showcase.cmd
+```
 
-## 当前架构
+随后打开 `.localdesk\demo-ui\index.html`。这个只读执行台会展示两次已经完成的真实任务：用户要求、Main Agent 计划、Workflow 步骤、工具调用、人工确认、产物及完整 Trace。
+
+录制回放用于避免现场网络或 Office 环境波动，页面会明确标为 `Recorded real run`，不会冒充实时执行。完整讲解顺序见 [稳定演示手册](docs/demo_runbook.md)。
+
+## 产品能做什么
+
+| 场景 | 输入 | LocalDesk 的工作 | 真实交付 |
+|---|---|---|---|
+| AI 资讯周报 | 自然语言任务、冻结官方 RSS、时间窗 | 发现资讯、保存证据、跨来源整理、审查结论、生成周报 | PPTX、PDF、未发送 EML |
+| 报销核对 | 支付流水 XLSX、发票 PDF、规则 DOCX | 匹配金额、发现异常、生成问题清单和摘要 | XLSX、PDF、未发送 EML |
+| 文件整理 | 指定目录和分类规则 | 先 dry-run，确认后移动，记录 journal | 整理结果和可独立执行的 rollback |
+
+AI 周报是主 Hero Demo，报销核对是第二个 Hero Demo；文件整理只用于说明 Runtime 如何治理真实副作用，不继续扩成第三条产品主线。
+
+## 主线流程
 
 ```mermaid
 flowchart LR
-    U["用户自然语言任务"] --> A["Thin Main Agent<br/>intent + 短计划"]
-    A --> W["Workflow / Skill<br/>周报、报销、文件整理"]
-    W --> R["Controlled Runtime<br/>Registry + Policy + Approval"]
-    R --> V["Verification + Trace"]
-    V --> O["PPTX / PDF / XLSX / EML"]
+    U["用户自然语言任务"] --> M["Thin Main Agent<br/>识别 intent + 生成短计划"]
+    M --> W["Workflow / Skill<br/>稳定完成办公流程"]
+    W --> R["Controlled Runtime<br/>参数、权限、确认"]
+    R --> T["Office / Web / File Tool"]
+    T --> V["Verification<br/>结构、哈希、渲染"]
+    V --> A["Artifact + Trace"]
 ```
 
-详细架构见 [当前产品架构](docs/current_architecture.md)。
+一句话理解：Main Agent 像前台，负责听懂需求和分配任务；Workflow 像熟练员工，按稳定步骤办事；Runtime 像审批和审计制度，确保动作在边界内完成。
 
-## 快速运行
+## Hero Demo 01：AI 资讯周报
 
-先只看 Main Agent 如何理解任务，不生成文件：
+用户说：“帮我整理本周 AI 资讯并生成 PPT。”
+
+系统会在运行前冻结来源、时间窗和规则，由“大模型、Agent 产品、产业应用”三路职责并发读取官方 RSS/网页。每张资讯卡片保存发布日期、URL、引用片段、访问时间、内容哈希、摘要和价值判断。Editor 合并重复事件并排序，Memory 过滤历史事件，Reviewer 检查结论是否被证据直接支持，最后生成 PPTX、PDF 和未发送 EML，等待用户一次确认后交付。
+
+一次保留的真实任务成功读取 OpenAI 官方 RSS，产生 30 条 Trace 并交付三份产物。正文页被 403 拒绝时，系统明确标记 `official_rss_item_fallback`，没有假装读到了正文。之后一次公网 TLS 超时也以失败任务留痕。
+
+## Hero Demo 02：报销核对
+
+用户说：“帮我核对这些报销材料。”
+
+系统读取支付流水 XLSX、发票 PDF 和规则 DOCX，按金额上限与金额容差核对，生成正常项和待复核项，再输出 XLSX、PDF 和未发送 EML。保留的真实执行 Trace 包含 27 个事件、1 条正常项和 2 条待复核项，三份文件在一次人工确认后交付。
+
+这个 Demo 使用合成输入，证明的是多文件读取、确定性核对和 Office 交付闭环，不代表真实企业财务规则覆盖。
+
+## Controlled Runtime
+
+```mermaid
+flowchart TD
+    P["Main Agent / Workflow 提出动作"] --> G["Registry + Schema 检查"]
+    G --> Y["Policy Guard 判断权限与风险"]
+    Y -->|高风险或正式交付| H["Approval"]
+    Y -->|允许| X["Tool 执行"]
+    H --> X
+    X --> C["Verification"]
+    C --> T["Trace + Artifact"]
+    T --> B["适用时 journal / rollback"]
+```
+
+| 设计 | 解决的问题 |
+|---|---|
+| Registry + Schema | 工具入口和参数形式不统一 |
+| Policy Guard | 越权路径、未授权网页、Shell、删除或覆盖风险 |
+| Staging + Approval | 用户没看过内容就发生正式副作用 |
+| SHA-256 + Verification | 预览后文件被替换，或生成文件实际损坏 |
+| Trace | Agent 说“完成了”，却无法复核做过什么 |
+| Journal + rollback | 文件整理失败后无法恢复 |
+
+固定 Workflow 和薄 Main Agent 共用这套 Runtime，因此以后增加规划能力时，不需要绕过已有安全边界。
+
+## Demo UI
+
+`localdesk.desktop.demo_ui` 把 `task.json` 和 `events.jsonl` 渲染成无后端、无依赖的静态页面。它重点展示 Agent 如何工作，而不是做复杂前端：
+
+- 用户任务与 Main Agent 的 3～6 步计划；
+- 六阶段执行进度；
+- Workflow、Runtime、Artifact 三类 Trace 过滤；
+- Approval 状态、产物类型和 SHA-256；
+- 已知限制与原始 Trace payload；
+- AI 周报和报销核对的稳定切换。
+
+也可以直接渲染刚完成的本地 Task Trace：
 
 ```powershell
-.\.venv\Scripts\python.exe -m localdesk.desktop.main_agent_demo --task "帮我整理本周 AI 资讯并生成 PPT" --plan-only
+.\.venv\Scripts\python.exe -m localdesk.desktop.demo_ui render `
+  --run "我的任务=<TASK_DIR>" `
+  --output .localdesk\demo-ui\live.html
 ```
 
-运行真实来源周报。来源集合和时间窗在运行前冻结；若网络或来源失败，任务会失败并保留证据，不会冒充成功：
+## 冻结评测
 
-```powershell
-.\.venv\Scripts\python.exe -m localdesk.desktop.weekly_briefing_live_demo `
-  --root .localdesk\weekly-live `
-  --start 2026-07-20 `
-  --end 2026-08-10
+项目冻结了 18 条小型任务。每条任务都有明确输入、期望产物和确定性检查；语义质量允许人工抽查，不用 LLM-as-Judge 作为唯一裁判。
 
-.\.venv\Scripts\python.exe -m localdesk.desktop.weekly_briefing_live_demo `
-  --root .localdesk\weekly-live `
-  --confirm <TASK_ID>
-```
+| 范围 | 当前结果 |
+|---|---:|
+| Main Agent 路由与拒绝 | 5/5 |
+| 单路研究 / 三路并行 | 2/2 |
+| Reviewer、Editor、Memory | 5/5 |
+| Policy、Approval、Artifact、Verification、Trace | 6/6 |
+| 合计 | 18/18 |
 
-没有网络时，可运行明确标记为 `manual_public_snapshot` 的离线回退 Demo：
-
-```powershell
-.\.venv\Scripts\python.exe -m localdesk.desktop.weekly_briefing_demo --root .localdesk\weekly-offline
-.\.venv\Scripts\python.exe -m localdesk.desktop.weekly_briefing_demo --root .localdesk\weekly-offline --confirm <TASK_ID>
-```
-
-运行报销核对：
-
-```powershell
-.\.venv\Scripts\python.exe -m localdesk.desktop.reimbursement_demo --root .localdesk\reimbursement
-.\.venv\Scripts\python.exe -m localdesk.desktop.reimbursement_demo --root .localdesk\reimbursement --confirm <TASK_ID>
-```
-
-运行冻结的 18 条产品评测：
+在同一受控 I/O 夹具中，三路并行覆盖仍为 3/3，耗时从 126.968 ms 降至 42.331 ms，为串行的 2.999 倍。这里的 18/18 和 2.999 倍只代表冻结工程小样本，不是公开 Benchmark、真实公网吞吐或用户成功率。当前没有调用外部 LLM，因此 Token 和模型成本为 0；人工删除/修改数仍为 `null`，没有伪造用户反馈。
 
 ```powershell
 .\.venv\Scripts\python.exe evaluation\run_product_evaluation.py `
@@ -68,35 +118,55 @@ flowchart LR
   --output evaluation\results\product_eval_v2.json
 ```
 
-最新冻结小样本结果为 18/18 通过；三路并行在受控延迟夹具中相对串行加速 2.999 倍。该数字只说明同一批确定性任务的工程行为，不代表公开 Benchmark 或真实用户成功率。详见 [评测报告](docs/product_eval_report_v2.md)。
+任务定义、版本修正和全部结果见 [冻结评测报告](docs/product_eval_report_v2.md)。
 
-导出真实资讯卡片的人审表：
+## 自己运行
+
+只查看 Main Agent 如何理解任务，不生成文件：
 
 ```powershell
-.\.venv\Scripts\python.exe evaluation\weekly_human_review.py export `
-  --cards <TASK_DIR>\staging\news_cards.json `
-  --output .localdesk\human-review\weekly-review.csv
-
-.\.venv\Scripts\python.exe evaluation\weekly_human_review.py summarize `
-  --review .localdesk\human-review\weekly-review.csv `
-  --output .localdesk\human-review\weekly-review-summary.json
+.\.venv\Scripts\python.exe -m localdesk.desktop.main_agent_demo `
+  --task "帮我整理本周 AI 资讯并生成 PPT" `
+  --plan-only
 ```
 
-空白行不会计入用户反馈；没有完成任何评审时，`human_delete_or_modify_count` 保持 `null`。
+运行真实来源周报：
+
+```powershell
+.\.venv\Scripts\python.exe -m localdesk.desktop.weekly_briefing_live_demo `
+  --root .localdesk\weekly-live `
+  --start 2026-07-20 `
+  --end 2026-08-10
+```
+
+运行报销核对：
+
+```powershell
+.\.venv\Scripts\python.exe -m localdesk.desktop.reimbursement_demo --root .localdesk\reimbursement
+```
+
+以上两个 Demo 第一阶段只生成 staging、确认页和 Trace。用户检查后，再用原命令追加 `--confirm <TASK_ID>` 执行正式交付。系统不会自动发送邮件。
 
 ## 真实性边界
 
-- 三个 Research Agent 是按“大模型 / Agent 产品 / 产业应用”分工的确定性并发模块，不是三个真实 LLM。
-- 当前联网研究使用冻结官方 RSS 和网页读取；正文页失败时，只允许使用带摘要的官方 RSS 条目，并标记为 `official_rss_item_fallback`。
-- 摘要是证据片段的确定性截取，价值判断会明确提示人工判断；没有调用外部 LLM，因此 Token 和模型成本为 0。
-- Editor 使用保守的事件指纹、标题相似度、证据状态和日期排序，不宣称通用语义理解。
-- Memory 保存历史卡片、事件指纹、保留/删除反馈和分类偏好；“持续追踪”尚未完成。
-- Reviewer 能检查证据字段及“标题/摘要是否能在引用片段中找到”，但不是完整的事实核查器。
-- 系统不自动发送邮件，不支持任意 GUI、任意 Shell、删除或覆盖用户文件。
-- OfficeBench 仅做过可行性与静态分析，未把它包装成已跑通的公开 Benchmark 成绩。
+- Main Agent 是确定性意图路由和短计划，不是开放式无限 replan；
+- 三个 Research Agent 是确定性并发职责模块，不是三个真实 LLM；
+- 联网研究只使用冻结官方 RSS/网页；正文失败时只能显式回退到官方 RSS 摘要；
+- Editor 使用保守事件指纹和标题相似度，不宣称通用语义理解；
+- Memory 保存历史事件、反馈和偏好，“持续追踪”尚未完成；
+- Reviewer 能拦截明显的结论—证据不一致，不是完整事实核查器；
+- OfficeBench 只完成了可行性和静态分析，没有公开 Benchmark 成绩；
+- 不支持任意 GUI、复杂视觉导航、任意 Shell、删除或覆盖用户文件。
+
+## 阅读路线
+
+- [当前产品架构](docs/current_architecture.md)：模块关系和技术取舍；
+- [稳定演示手册](docs/demo_runbook.md)：5 分钟面试演示脚本；
+- [面试讲解手册](docs/interview_guide.md)：常见追问与三条简历描述；
+- [Phase 8 周报报告](docs/phase8_ai_weekly_briefing.md)：真实来源与 Office 交付证据；
+- [冻结评测报告](docs/product_eval_report_v2.md)：18 条任务和结果边界；
+- [文档索引](docs/README.md)：全部阶段记录。
 
 ## 来源与独立改造范围
 
-仓库基于 MewCode Python Coding Agent 学习型底座改造，原始代码和来源标注保留，不宣称从零开发。LocalDesk 的主要独立改造集中在 `localdesk/desktop/`、`evaluation/` 和对应测试、文档中。
-
-文档入口见 [docs/README.md](docs/README.md)，面试时可直接对照 [面试讲解手册](docs/interview_guide.md)。
+仓库基于 MewCode Python Coding Agent 学习型底座改造，原始来源标注保留，不宣称从零开发。LocalDesk 的主要独立工作集中在 `localdesk/desktop/`、`evaluation/`、对应测试与产品文档中。

@@ -6,6 +6,7 @@
 |---|---|---|
 | [当前产品架构](current_architecture.md) | Thin Main Agent → Workflow / Skill → Controlled Runtime | 当前有效 |
 | [面试讲解手册](interview_guide.md) | 项目介绍、模块、技术细节、常见追问与简历描述 | 当前有效 |
+| [稳定演示手册](demo_runbook.md) | 录制 Trace 回放、现场运行和 5 分钟讲解顺序 | 当前有效 |
 | [冻结产品评测 v2](product_eval_report_v2.md) | 18 条任务、实验缺陷修正、指标与边界 | 已完成 |
 | [2026-08-10 托管冲刺交接](sprint_handoff_20260810.md) | Before/After、验证、失败历史与接管路线 | 已完成 |
 | [Phase 0：重建基线](phase0_rebaseline.md) | 品牌迁移、核心回归、评测基线 | 已完成 |

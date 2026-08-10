@@ -22,6 +22,7 @@ flowchart TD
     APP --> TOOL["Office / File / Web Tool"]
     TOOL --> VER["结果验证"]
     VER --> TRACE["Trace + Artifact"]
+    TRACE --> UI["只读 Demo UI<br/>Plan + Approval + Artifact + Timeline"]
     TRACE --> RB["适用时 journal / rollback"]
 ```
 
@@ -57,7 +58,8 @@ flowchart LR
 | `ArtifactBundleDelivery` | 把多份产物绑定成一次确认和交付 | 正式交付前复核路径、SHA-256 和文件结构 |
 | `DesktopToolRegistry` | 统一工具入口 | Workflow 与未来动态 Agent 共用 |
 | `DesktopPolicyGuard` | 判断权限和风险 | deny-first，不允许任意 Shell、删除、覆盖 |
-| `TaskTraceStore` | 保存计划、来源、审批、执行、验证和交付事件 | JSONL，可回放但当前 UI 展示仍较基础 |
+| `TaskTraceStore` | 保存计划、来源、审批、执行、验证和交付事件 | JSONL，可被 Demo UI 直接回放 |
+| `demo_ui` | 把真实 Task Trace 渲染为只读执行台 | 静态本地页面，不在 UI 内触发真实动作 |
 
 ## 为什么不直接上复杂 Agent 框架
 
