@@ -73,7 +73,7 @@ Phase 2 新增了离线 `FakeBrowserAdapter` 和 `httpx.MockTransport` 测试，
 python evaluation/run_phase2_evaluation.py
 ```
 
-本次结果写入 [`evaluation/results/phase2_controlled_research.json`](../evaluation/results/phase2_controlled_research.json)：**27 passed, 0 failed, 0 skipped**，测试级回归通过率为 **1.0**。它只证明离线、确定性的受控链路没有回归；没有测量真实互联网任务成功率、检索质量、网页事实正确性、延迟、模型效果或成本。
+本次结果写入 [`evaluation/results/phase2_controlled_research.json`](../../../evaluation/results/phase2_controlled_research.json)：**27 passed, 0 failed, 0 skipped**，测试级回归通过率为 **1.0**。它只证明离线、确定性的受控链路没有回归；没有测量真实互联网任务成功率、检索质量、网页事实正确性、延迟、模型效果或成本。
 
 ## 已知边界
 

@@ -1,6 +1,6 @@
 {
   "command": [
-    "D:\\anaconda3\\python.exe",
+    "<PYTHON>",
     "-m",
     "pytest",
     "-q",
@@ -9,7 +9,7 @@
     "-p",
     "no:cacheprovider",
     "--basetemp",
-    "C:\\Users\\Admin\\AppData\\Local\\Temp\\localdesk-phase2-alv1vfoy"
+    "<SYSTEM_TEMP>\\localdesk-phase2-alv1vfoy"
   ],
   "evaluation_task_set": {
     "by_type": {

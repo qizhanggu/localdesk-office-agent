@@ -34,7 +34,7 @@
 
 ## 3. B1：OfficeBench 代表任务与能力映射
 
-完整 split、官方 commit 和 SHA-256 见 [`evaluation/officebench/pilot_manifest.json`](../evaluation/officebench/pilot_manifest.json)。
+完整 split、官方 commit 和 SHA-256 见 [`evaluation/officebench/pilot_manifest.json`](../../../evaluation/officebench/pilot_manifest.json)。
 
 | Split | 官方任务 | 要求与产物 | 官方成功判定 | LocalDesk 可复用 | 主要缺口 | 接入判断 |
 |---|---|---|---|---|---|---|
@@ -62,7 +62,7 @@
 
 | 项目 | 本机实测/官方要求 | 判断 |
 |---|---|---|
-| Python | 本机 `D:\Python\Python311\python.exe` 为 3.11.9；OfficeBench 推荐 3.10 | 不建议污染现有环境；若进 B2，在 D 盘建立隔离 3.10 环境 |
+| Python | 当时隔离解释器为 3.11.9；OfficeBench 推荐 3.10 | 不建议污染现有环境；若进 B2，建立隔离 3.10 环境 |
 | Docker | `docker` / `docker-compose` 命令未发现 | 当前不能运行官方容器链路 |
 | D 盘 | 总计 276.83 GB，可用 127.23 GB | 空间满足后续小规模 Spike，但下载前仍需确认 |
 | OfficeBench 源元数据 | 稀疏展开约 0.33 MB | 已完成，不含任务大文件和镜像 |
@@ -73,7 +73,7 @@
 
 ## 5. TheAgentCompany 相近任务
 
-机器可读清单见 [`evaluation/theagentcompany/task_shortlist.json`](../evaluation/theagentcompany/task_shortlist.json)。
+机器可读清单见 [`evaluation/theagentcompany/task_shortlist.json`](../../../evaluation/theagentcompany/task_shortlist.json)。
 
 | 任务 | 系统与产物 | 官方验证 | 当前覆盖与缺口 | 是否值得 |
 |---|---|---|---|---|

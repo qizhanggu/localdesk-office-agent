@@ -247,8 +247,7 @@ class WeeklyBriefingWorkflow:
 
     def _build_pptx(self, cards: Path, output: Path, start: date, end: date) -> None:
         source_script=Path(__file__).with_name("weekly_briefing_presentation.mjs")
-        bundled_node=Path(r"C:\Users\Admin\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe")
-        node=str(bundled_node if bundled_node.is_file() else shutil.which("node"))
+        node=_resolve_node_executable()
         skill_dir=_presentation_skill_dir()
         setup=skill_dir / "container_tools" / "setup_artifact_tool_workspace.mjs"
         if not setup.is_file():
@@ -349,8 +348,7 @@ class WeeklyBriefingWorkflow:
         checker=_presentation_skill_dir() / "container_tools" / "slides_test.py"
         if not checker.is_file():
             return ["找不到 PPTX 结构检查工具"]
-        artifact_python=Path(r"C:\Users\Admin\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe")
-        python=str(artifact_python if artifact_python.is_file() else Path(sys.executable))
+        python=_resolve_artifact_python()
         artifact_env = os.environ.copy()
         artifact_env.setdefault("HOME", str(Path.home()))
         result=subprocess.run([python, str(checker), str(pptx)], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120, env=artifact_env)
@@ -444,12 +442,35 @@ def _presentation_skill_dir() -> Path:
     return cache / "missing" / "skills" / "presentations"
 
 
+def _resolve_node_executable() -> str:
+    configured = os.environ.get("LOCALDESK_NODE")
+    if configured:
+        candidate = Path(configured).expanduser()
+        if candidate.is_file():
+            return str(candidate.resolve())
+        raise RuntimeError(f"LOCALDESK_NODE 指向的文件不存在：{candidate}")
+    discovered = shutil.which("node")
+    if discovered:
+        return discovered
+    raise RuntimeError("PPTX 生成需要 Node.js；请加入 PATH 或设置 LOCALDESK_NODE")
+
+
+def _resolve_artifact_python() -> str:
+    configured = os.environ.get("LOCALDESK_ARTIFACT_PYTHON")
+    if configured:
+        candidate = Path(configured).expanduser()
+        if candidate.is_file():
+            return str(candidate.resolve())
+        raise RuntimeError(f"LOCALDESK_ARTIFACT_PYTHON 指向的文件不存在：{candidate}")
+    return str(Path(sys.executable).resolve())
+
+
 def _find_soffice() -> str | None:
     candidates = (
-        r"D:\Apps\LibreOffice\program\soffice.com",
-        r"C:\Program Files\LibreOffice\program\soffice.com",
+        os.environ.get("LOCALDESK_SOFFICE_PATH"),
         shutil.which("soffice"),
-        r"D:\Apps\LibreOffice\program\soffice.exe",
+        shutil.which("libreoffice"),
+        r"C:\Program Files\LibreOffice\program\soffice.com",
         r"C:\Program Files\LibreOffice\program\soffice.exe",
     )
     return next((str(Path(path)) for path in candidates if path and Path(path).is_file()), None)

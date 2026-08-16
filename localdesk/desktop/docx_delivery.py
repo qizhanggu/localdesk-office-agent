@@ -290,7 +290,6 @@ def _find_soffice() -> str | None:
         os.getenv("LOCALDESK_SOFFICE_PATH"),
         shutil.which("soffice"),
         shutil.which("libreoffice"),
-        r"D:\Apps\LibreOffice\program\soffice.exe",
         r"C:\Program Files\LibreOffice\program\soffice.exe",
     ]
     return next((candidate for candidate in candidates if candidate and Path(candidate).is_file()), None)

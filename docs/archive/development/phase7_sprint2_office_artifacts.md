@@ -39,11 +39,11 @@ Sprint 1 已能生成和安全交付 Excel/CSV；本阶段补齐了办公产物�
 
 进一步把 Excel/CSV、求职材料和 OfficeBench Adapter 回归合并运行后，结果为 **58 passed，1 skipped**。
 
-完整仓库测试的当前结果为 **615 passed，3 skipped，12 failed**。12 个失败均未修改，且不属于本阶段改动范围：其中 3 个依赖当前 Windows sandbox 对 `%TEMP%`、`/tmp`、`C:\Users\Admin\.localdesk` 或 `.ssh` 的访问权限，1 个依赖 Unix `sleep`，1 个是既有异步时序断言，另有 5 个为既有 `replacement_state` 返回值接口不一致，2 个为既有 team coordinator 文件权限/状态问题。Sprint 2 新增测试和相关核心回归均通过。
+完整仓库测试的当前结果为 **615 passed，3 skipped，12 failed**。12 个失败均未修改，且不属于本阶段改动范围：其中 3 个依赖当前 Windows sandbox 对 `%TEMP%`、`/tmp`、`%USERPROFILE%\.localdesk` 或 `.ssh` 的访问权限，1 个依赖 Unix `sleep`，1 个是既有异步时序断言，另有 5 个为既有 `replacement_state` 返回值接口不一致，2 个为既有 team coordinator 文件权限/状态问题。Sprint 2 新增测试和相关核心回归均通过。
 
 ### 真实 LibreOffice PDF Smoke Test
 
-使用本机 `D:\Apps\LibreOffice\program\soffice.exe` 实际运行 DOCX -> PDF：
+使用本机 LibreOffice `soffice` 实际运行 DOCX -> PDF：
 
 - Task 状态：`succeeded`
 - 正式 PDF：`.localdesk/sprint2-real/output/brief.pdf`

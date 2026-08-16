@@ -32,7 +32,7 @@
 
 ### AI 资讯周报
 
-见 [Phase 8](phase8_ai_weekly_briefing.md)。2026-08-10 真实任务：`dba67255-c9a6-4663-bddd-2d02d5a995fc`，最终交付 3 个文件，任务状态为 `succeeded`。
+见 [Phase 8](../../phase8_ai_weekly_briefing.md)。2026-08-10 真实任务：`dba67255-c9a6-4663-bddd-2d02d5a995fc`，最终交付 3 个文件，任务状态为 `succeeded`。
 
 ### 自动化测试
 

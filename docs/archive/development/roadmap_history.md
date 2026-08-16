@@ -1,6 +1,6 @@
 # LocalDesk Office Agent 改造总计划（历史基线）
 
-> **2026-08-10 状态说明：** 本文保留早期重构路线用于追溯，不再作为当前能力清单。当前事实请以代码、测试、[README](README.md)、[当前产品架构](docs/current_architecture.md)、[AI 周报 Hero Demo](docs/phase8_ai_weekly_briefing.md) 和 [冻结评测 v2](docs/product_eval_report_v2.md) 为准。本文后文中的“待审批”“未完成”描述可能已经过期，不能覆盖后续真实验收结果。
+> **2026-08-10 状态说明：** 本文保留早期重构路线用于追溯，不再作为当前能力清单。当前事实请以代码、测试、[README](../../../README.md)、[当前产品架构](../../current_architecture.md)、[AI 周报 Hero Demo](../../phase8_ai_weekly_briefing.md) 和 [冻结评测 v2](../../product_eval_report_v2.md) 为准。本文后文中的“待审批”“未完成”描述可能已经过期，不能覆盖后续真实验收结果。
 
 > 文档状态：待审批。本文是后续实现的唯一阶段基线；任何已完成能力、测试结果和指标，均以代码与可复现证据为准。
 >
@@ -378,7 +378,7 @@ CLI / 后续 Web UI
 - 已完成官方仓库版本冻结、任务/Evaluator/交互入口阅读、5 条 OfficeBench 任务 split 与 SHA-256 固定、8 条 TheAgentCompany 任务筛选。
 - OfficeBench 官方 commit 为 `b978b808667c32b52ce19a67ce1def1de9ae02b7`；TheAgentCompany 官方 commit 为 `98b68ef82a47690c316f42fddb05baafaab56851`。
 - 当前环境不能直接运行 OfficeBench 官方容器链：Docker 命令未发现；官方未公布镜像体积，根据 Dockerfile 依赖暂估 2–5 GB，尚未下载或实测。
-- 详细能力矩阵、环境结论、产品定位和下一阶段最小范围见 [`docs/benchmark_feasibility.md`](docs/benchmark_feasibility.md)。
+- 详细能力矩阵、环境结论、产品定位和下一阶段最小范围见 [`benchmark_feasibility.md`](benchmark_feasibility.md)。
 - 当前按约定暂停在 B0+B1：B2 Adapter、Docker 安装、镜像下载和官方任务运行均未开始。
 
 ### 8.4 B2A 离线 Adapter 基础结果（2026-07-23）
@@ -388,7 +388,7 @@ CLI / 后续 Web UI
 - 已为 Dev `1-16/0` 建立 pinned commit/hash 校验、隔离目录、字段转换、Runtime bridge Protocol、Evaluator 探测和无副作用 dry-run。
 - 真实固定快照 dry-run 明确返回 `docker_command_not_found` 与 `official_testbed_inputs_not_materialized`；没有伪造官方 Evaluator 运行。
 - 新增 Adapter 契约测试 10 条；连同 Desktop 核心回归共 45 条通过。
-- 当前暂停在 B2A：冻结 Eval 未运行，Docker/镜像未安装，B2B 等待审批。详细证据见 [`docs/phase7_b2a_offline_adapter.md`](docs/phase7_b2a_offline_adapter.md)。
+- 当前暂停在 B2A：冻结 Eval 未运行，Docker/镜像未安装，B2B 等待审批。详细证据见 [`phase7_b2a_offline_adapter.md`](phase7_b2a_offline_adapter.md)。
 
 ### 8.5 Final Sprint 1：Excel/CSV 与 B2B 环境检查（2026-07-27）
 

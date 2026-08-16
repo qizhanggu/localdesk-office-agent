@@ -34,7 +34,7 @@
 
 本地证据位于 Git 忽略目录：
 
-`D:\Users\Admin\Desktop\localdesk-agent\.localdesk\weekly-live-v3-final-20260810`
+`.localdesk/weekly-live-v3-final-20260810`
 
 可提交的审计摘要见 [live_weekly_hero_v3_audit.json](../evaluation/results/live_weekly_hero_v3_audit.json)。
 

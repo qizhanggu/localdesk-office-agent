@@ -1,17 +1,17 @@
 {
   "artifacts": [
     {
-      "final_path": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\phase6a-demo-66ccc95a\\output\\job-materials.md",
+      "final_path": "<WORKSPACE>\\.localdesk\\phase6a-demo-66ccc95a\\output\\job-materials.md",
       "kind": "markdown",
       "sha256": "7591363c9886eb4cc88e0aea8195d6b0d7e0b485968b4a9a24b1611a8554c73f",
-      "staged_path": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\phase6a-demo-66ccc95a\\tasks\\4f3df4d0-654a-4f0a-938d-d50a559c872b\\staging\\job-materials.md",
+      "staged_path": "<WORKSPACE>\\.localdesk\\phase6a-demo-66ccc95a\\tasks\\4f3df4d0-654a-4f0a-938d-d50a559c872b\\staging\\job-materials.md",
       "summary": "确认后的交付"
     },
     {
-      "final_path": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\phase6a-demo-66ccc95a\\output\\job-materials.docx",
+      "final_path": "<WORKSPACE>\\.localdesk\\phase6a-demo-66ccc95a\\output\\job-materials.docx",
       "kind": "docx",
       "sha256": "a7cc39e1f32a7d4687ae531f758826e079d8eda975822be9b1d4d9a34acd8fb4",
-      "staged_path": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\phase6a-demo-66ccc95a\\tasks\\4f3df4d0-654a-4f0a-938d-d50a559c872b\\staging\\job-materials.docx",
+      "staged_path": "<WORKSPACE>\\.localdesk\\phase6a-demo-66ccc95a\\tasks\\4f3df4d0-654a-4f0a-938d-d50a559c872b\\staging\\job-materials.docx",
       "summary": "确认后的交付"
     }
   ],
@@ -56,13 +56,13 @@
     "artifact_committed",
     "status_changed"
   ],
-  "markdown": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\phase6a-demo-66ccc95a\\output\\job-materials.md",
+  "markdown": "<WORKSPACE>\\.localdesk\\phase6a-demo-66ccc95a\\output\\job-materials.md",
   "recorded_at": "2026-07-22T08:00:08.129343+00:00",
   "schema_version": 1,
   "status": "succeeded",
-  "task_board": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\phase6a-demo-66ccc95a\\tasks\\task_board.html",
+  "task_board": "<WORKSPACE>\\.localdesk\\phase6a-demo-66ccc95a\\tasks\\task_board.html",
   "task_id": "4f3df4d0-654a-4f0a-938d-d50a559c872b",
-  "trace_dir": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\phase6a-demo-66ccc95a\\tasks\\4f3df4d0-654a-4f0a-938d-d50a559c872b",
+  "trace_dir": "<WORKSPACE>\\.localdesk\\phase6a-demo-66ccc95a\\tasks\\4f3df4d0-654a-4f0a-938d-d50a559c872b",
   "uses_constructed_data": true,
   "uses_real_libreoffice": true
 }

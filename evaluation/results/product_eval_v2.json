@@ -2,7 +2,7 @@
   "benchmark_id": "localdesk-product-eval-v2",
   "manifest_sha256": "07b3884d19a13f847ba9293a396346237a93664e06feaae9b759613d023aa72b",
   "started_at": "2026-08-10T07:28:32.609806+00:00",
-  "run_root": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\product-eval-v2-release-20260810",
+  "run_root": "<WORKSPACE>\\.localdesk\\product-eval-v2-release-20260810",
   "rules": {
     "success_definition": "Task passes only when every listed deterministic check passes.",
     "artifact_not_chat": true,
@@ -238,7 +238,7 @@
           "status_changed"
         ],
         "error": null,
-        "task_dir": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\product-eval-v2-release-20260810\\ap01\\tasks\\41118e53-8a52-45fe-97c4-3e6d265438d7"
+        "task_dir": "<WORKSPACE>\\.localdesk\\product-eval-v2-release-20260810\\ap01\\tasks\\41118e53-8a52-45fe-97c4-3e6d265438d7"
       },
       "error": null
     },
@@ -269,7 +269,7 @@
           "status_changed"
         ],
         "error": null,
-        "task_dir": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\product-eval-v2-release-20260810\\ar01\\tasks\\1a5690bd-eca9-47fb-8e8b-ec18d940f48f"
+        "task_dir": "<WORKSPACE>\\.localdesk\\product-eval-v2-release-20260810\\ar01\\tasks\\1a5690bd-eca9-47fb-8e8b-ec18d940f48f"
       },
       "error": null
     },
@@ -294,8 +294,8 @@
           "artifact_bundle_delivery_failed",
           "status_changed"
         ],
-        "error": "暂存产物哈希已变化：D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\product-eval-v2-release-20260810\\vf01\\tasks\\219724ad-59ec-463e-bd6e-596336e1bc14\\staging\\result.xlsx",
-        "task_dir": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\product-eval-v2-release-20260810\\vf01\\tasks\\219724ad-59ec-463e-bd6e-596336e1bc14",
+        "error": "暂存产物哈希已变化：<WORKSPACE>\\.localdesk\\product-eval-v2-release-20260810\\vf01\\tasks\\219724ad-59ec-463e-bd6e-596336e1bc14\\staging\\result.xlsx",
+        "task_dir": "<WORKSPACE>\\.localdesk\\product-eval-v2-release-20260810\\vf01\\tasks\\219724ad-59ec-463e-bd6e-596336e1bc14",
         "verification_detected": true
       },
       "error": null
@@ -327,7 +327,7 @@
           "status_changed"
         ],
         "error": null,
-        "task_dir": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\product-eval-v2-release-20260810\\tr01\\tasks\\c302a723-c709-418f-95a3-9a3982263a8c",
+        "task_dir": "<WORKSPACE>\\.localdesk\\product-eval-v2-release-20260810\\tr01\\tasks\\c302a723-c709-418f-95a3-9a3982263a8c",
         "missing_events": []
       },
       "error": null

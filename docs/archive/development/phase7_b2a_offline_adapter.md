@@ -78,8 +78,8 @@ Evaluator 频率：
 
 详细方法、规则边界和完整表格见 [`officebench_300_task_analysis.md`](officebench_300_task_analysis.md)。机器可读结果见：
 
-- [`task_static_analysis.json`](../evaluation/officebench/results/task_static_analysis.json)；
-- [`task_catalog.csv`](../evaluation/officebench/results/task_catalog.csv)。
+- [`task_static_analysis.json`](../../../evaluation/officebench/results/task_static_analysis.json)；
+- [`task_catalog.csv`](../../../evaluation/officebench/results/task_catalog.csv)。
 
 应用、操作和链路是根据官方 Git tree、任务文本和 Evaluator 参数做的确定性静态推断，不是 Runtime 调用 Trace。一个任务可出现多个应用，因此应用频率总和超过 300 是正常现象。
 
@@ -109,7 +109,7 @@ runtime_called = false
 filesystem_prepared = false
 ```
 
-原始结果见 [`dev_1-16_0_dry_run.json`](../evaluation/officebench/results/dev_1-16_0_dry_run.json)。
+原始结果见 [`dev_1-16_0_dry_run.json`](../../../evaluation/officebench/results/dev_1-16_0_dry_run.json)。
 
 ## 4. 测试和验证
 

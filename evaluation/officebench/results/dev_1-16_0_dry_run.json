@@ -12,10 +12,10 @@
       "weekday": "Friday",
       "time": "10:00 AM"
     },
-    "input_root": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\benchmark-runs\\ob-b2a-v1\\1-16\\0\\inputs",
-    "staging_root": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\benchmark-runs\\ob-b2a-v1\\1-16\\0\\staging",
-    "artifact_root": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\benchmark-runs\\ob-b2a-v1\\1-16\\0\\artifacts",
-    "trace_path": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\benchmark-runs\\ob-b2a-v1\\1-16\\0\\trace\\adapter_trace.jsonl",
+    "input_root": "<WORKSPACE>\\.localdesk\\benchmark-runs\\ob-b2a-v1\\1-16\\0\\inputs",
+    "staging_root": "<WORKSPACE>\\.localdesk\\benchmark-runs\\ob-b2a-v1\\1-16\\0\\staging",
+    "artifact_root": "<WORKSPACE>\\.localdesk\\benchmark-runs\\ob-b2a-v1\\1-16\\0\\artifacts",
+    "trace_path": "<WORKSPACE>\\.localdesk\\benchmark-runs\\ob-b2a-v1\\1-16\\0\\trace\\adapter_trace.jsonl",
     "required_artifacts": [
       "random_paragraph.docx"
     ]
@@ -26,7 +26,7 @@
       "docker_command_not_found",
       "official_testbed_inputs_not_materialized"
     ],
-    "entrypoint": "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.localdesk\\benchmark-sources\\officebench\\evaluation.py",
+    "entrypoint": "<WORKSPACE>\\.localdesk\\benchmark-sources\\officebench\\evaluation.py",
     "docker_path": null
   },
   "runtime_called": false,

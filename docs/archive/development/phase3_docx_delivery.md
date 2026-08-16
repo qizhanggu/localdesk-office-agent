@@ -30,7 +30,7 @@ Markdown 继续是可审阅、可追溯的源产物。DOCX 不是简单“另存
 
 ## 真实渲染验收
 
-LibreOffice 已安装在 `D:\Apps\LibreOffice`，不会占用 C 盘。项目自身的 `LibreOfficeDocxRenderer` 已使用构造资料跑通完整 Runtime：
+LibreOffice 已通过本机 `soffice` 实际运行。项目自身的 `LibreOfficeDocxRenderer` 已使用构造资料跑通完整 Runtime：
 
 - 任务状态为 `succeeded`，确认后同时交付 Markdown 与 DOCX；
 - DOCX 结构检查通过；

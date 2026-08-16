@@ -1,30 +1,12 @@
-# LocalDesk — 可审计的本地办公 Agent
+# LocalDesk
 
-LocalDesk 接收一句自然语言任务，选择稳定的办公流程，读取本地文件或官方网页，并真正交付 PPTX、PDF、XLSX 和未发送邮件草稿。
+### A controlled local Office Agent for real desktop work
+
+一个面向个人办公场景的本地 AI 助手：从自然语言任务出发，调用稳定 Workflow 和 Office Skills 完成真实办公产物，并通过受控 Runtime 提供权限、确认、验证、Trace 与恢复能力。
 
 它的核心不是“让 Agent 看起来很自主”，而是：**办公任务能完成，正式动作可确认，结果可验证，过程可追溯。**
 
-## 30 秒看 Demo
-
-```powershell
-.\demo\run_showcase.cmd
-```
-
-随后打开 `.localdesk\demo-ui\index.html`。这个只读执行台会展示两次已经完成的真实任务：用户要求、Main Agent 计划、Workflow 步骤、工具调用、人工确认、产物及完整 Trace。
-
-录制回放用于避免现场网络或 Office 环境波动，页面会明确标为 `Recorded real run`，不会冒充实时执行。完整讲解顺序见 [稳定演示手册](docs/demo_runbook.md)。
-
-## 产品能做什么
-
-| 场景 | 输入 | LocalDesk 的工作 | 真实交付 |
-|---|---|---|---|
-| AI 资讯周报 | 自然语言任务、冻结官方 RSS、时间窗 | 发现资讯、保存证据、跨来源整理、审查结论、生成周报 | PPTX、PDF、未发送 EML |
-| 报销核对 | 支付流水 XLSX、发票 PDF、规则 DOCX | 匹配金额、发现异常、生成问题清单和摘要 | XLSX、PDF、未发送 EML |
-| 文件整理 | 指定目录和分类规则 | 先 dry-run，确认后移动，记录 journal | 整理结果和可独立执行的 rollback |
-
-AI 周报是主 Hero Demo，报销核对是第二个 Hero Demo；文件整理只用于说明 Runtime 如何治理真实副作用，不继续扩成第三条产品主线。
-
-## 主线流程
+## 30 秒看懂 LocalDesk
 
 ```mermaid
 flowchart LR
@@ -37,6 +19,27 @@ flowchart LR
 ```
 
 一句话理解：Main Agent 像前台，负责听懂需求和分配任务；Workflow 像熟练员工，按稳定步骤办事；Runtime 像审批和审计制度，确保动作在边界内完成。
+
+## Demo / Screenshot
+
+```powershell
+.\demo\run_showcase.cmd
+```
+
+随后打开 `.localdesk\demo-ui\index.html`。这个只读执行台会展示两次已经完成的真实任务：User Task、Main Agent Plan、Workflow、Tool Call、Approval、Artifact 和完整 Trace。
+
+录制回放用于避免现场网络或 Office 环境波动，页面会明确标为 `Recorded real run`，不会冒充实时执行。完整讲解顺序见 [稳定演示手册](docs/demo_runbook.md)。
+
+![LocalDesk Agent Execution Console](docs/assets/localdesk-demo-console.jpg)
+
+## 核心业务场景
+
+| 场景 | 输入 | LocalDesk 的工作 | 真实交付 |
+|---|---|---|---|
+| AI 资讯周报 | 自然语言任务、冻结官方 RSS、时间窗 | 发现资讯、保存证据、跨来源整理、审查结论、生成周报 | PPTX、PDF、未发送 EML |
+| 报销核对 | 支付流水 XLSX、发票 PDF、规则 DOCX | 匹配金额、发现异常、生成问题清单和摘要 | XLSX、PDF、未发送 EML |
+
+AI 周报是主 Hero Demo，报销核对是稳定辅助 Demo；文件整理、UIA 和求职材料作为 Additional Capabilities，不与两条主线平均争夺注意力。
 
 ## Hero Demo 01：AI 资讯周报
 
@@ -54,7 +57,16 @@ flowchart LR
 
 这个 Demo 使用合成输入，证明的是多文件读取、确定性核对和 Office 交付闭环，不代表真实企业财务规则覆盖。
 
-## Controlled Runtime
+## Additional Capabilities
+
+- 文件整理：dry-run → 人工确认 → move → operation journal → 独立 rollback；
+- Windows UIA：只在白名单测试窗口中执行结构化控件操作和状态验证；
+- 求职材料：JD 与本地履历生成带来源的 DOCX 草稿；
+- Office Skills：结构化读取或生成 XLSX、DOCX、PDF、PPTX 和 EML。
+
+这些能力用于证明 Runtime 和 Office Skill 可以复用，不与两个核心 Demo 平均争夺产品主线。
+
+## Architecture
 
 ```mermaid
 flowchart TD
@@ -78,6 +90,10 @@ flowchart TD
 | Journal + rollback | 文件整理失败后无法恢复 |
 
 固定 Workflow 和薄 Main Agent 共用这套 Runtime，因此以后增加规划能力时，不需要绕过已有安全边界。
+
+为什么不使用完全开放的 Agent Loop？当前真正的难点是来源证据、Office 文件有效性和正式副作用，而不是长链规划。先用 Thin Agent + deterministic Workflow 保证真实任务稳定；只有后续任务出现明确 replan 需求时，才逐渐提高自主性。
+
+一个实际例子：用户预览 PPT 后，如果 staging 文件在正式交付前被替换，Runtime 会重新计算 SHA-256 并阻止交付，而不是因为 Agent 已经说“完成”就继续执行。
 
 ## Demo UI
 
@@ -110,7 +126,7 @@ flowchart TD
 | Policy、Approval、Artifact、Verification、Trace | 6/6 |
 | 合计 | 18/18 |
 
-在同一受控 I/O 夹具中，三路并行覆盖仍为 3/3，耗时从 126.968 ms 降至 42.331 ms，为串行的 2.999 倍。这里的 18/18 和 2.999 倍只代表冻结工程小样本，不是公开 Benchmark、真实公网吞吐或用户成功率。当前没有调用外部 LLM，因此 Token 和模型成本为 0；人工删除/修改数仍为 `null`，没有伪造用户反馈。
+仓库锁定结果中，三路并行覆盖仍为 3/3，耗时从 126.968 ms 降至 42.331 ms，为串行的 2.999 倍；2026-08-16 的 release 重跑仍为 18/18，并发比为 2.912 倍。这里的 18/18 和并发比只代表冻结工程小样本，不是公开 Benchmark、真实公网吞吐或用户成功率。当前没有调用外部 LLM，因此 Token 和模型成本为 0；人工删除/修改数仍为 `null`，没有伪造用户反馈。
 
 ```powershell
 .\.venv\Scripts\python.exe evaluation\run_product_evaluation.py `
@@ -120,7 +136,16 @@ flowchart TD
 
 任务定义、版本修正和全部结果见 [冻结评测报告](docs/product_eval_report_v2.md)。
 
-## 自己运行
+## Quick Start
+
+环境要求：Windows 10/11、Python 3.11+、[uv](https://docs.astral.sh/uv/)。稳定录制回放和冻结评测不需要外部 LLM API；完整 PPTX → PDF 实际生成需要 Microsoft PowerPoint，或安装 LibreOffice 作为回退。
+
+```powershell
+git clone https://github.com/qizhanggu/localdesk-office-agent.git
+cd localdesk-office-agent
+uv sync --frozen --cache-dir .uv-cache
+.\demo\run_showcase.cmd
+```
 
 只查看 Main Agent 如何理解任务，不生成文件：
 
@@ -147,7 +172,7 @@ flowchart TD
 
 以上两个 Demo 第一阶段只生成 staging、确认页和 Trace。用户检查后，再用原命令追加 `--confirm <TASK_ID>` 执行正式交付。系统不会自动发送邮件。
 
-## 真实性边界
+## Project Boundaries
 
 - Main Agent 是确定性意图路由和短计划，不是开放式无限 replan；
 - 三个 Research Agent 是确定性并发职责模块，不是三个真实 LLM；
@@ -156,7 +181,8 @@ flowchart TD
 - Memory 保存历史事件、反馈和偏好，“持续追踪”尚未完成；
 - Reviewer 能拦截明显的结论—证据不一致，不是完整事实核查器；
 - OfficeBench 只完成了可行性和静态分析，没有公开 Benchmark 成绩；
-- 不支持任意 GUI、复杂视觉导航、任意 Shell、删除或覆盖用户文件。
+- 不支持 arbitrary GUI、登录或 CAPTCHA、VLM 视觉导航、OCR；
+- 不自动发送邮件，不允许任意 Shell、删除或覆盖用户文件。
 
 ## 阅读路线
 
@@ -165,8 +191,9 @@ flowchart TD
 - [面试讲解手册](docs/interview_guide.md)：常见追问与三条简历描述；
 - [Phase 8 周报报告](docs/phase8_ai_weekly_briefing.md)：真实来源与 Office 交付证据；
 - [冻结评测报告](docs/product_eval_report_v2.md)：18 条任务和结果边界；
-- [文档索引](docs/README.md)：全部阶段记录。
+- [Portfolio Release 验收](docs/portfolio_release_validation.md)：安装、测试、Demo、安全扫描和已知失败；
+- [文档索引](docs/README.md)：当前文档与历史 archive 的清晰入口。
 
 ## 来源与独立改造范围
 
-仓库基于 MewCode Python Coding Agent 学习型底座改造，原始来源标注保留，不宣称从零开发。LocalDesk 的主要独立工作集中在 `localdesk/desktop/`、`evaluation/`、对应测试与产品文档中。
+仓库基于 MewCode Python Coding Agent 学习型底座二次开发，不宣称全部从零实现。原始底座提供 Python Coding Agent 的 CLI、模型客户端和通用工具基础；LocalDesk 的独立改造主要集中在 `localdesk/desktop/` 的 Office/Runtime/Workflow、`evaluation/` 的冻结评测、`demo/` 的可重复演示，以及对应测试和产品文档。原始来源与历史归档均保留。

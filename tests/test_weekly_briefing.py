@@ -19,6 +19,9 @@ from localdesk.desktop.weekly_briefing import (
     WeeklyBriefingReviewer,
     WeeklyBriefingWorkflow,
     _event_id,
+    _find_soffice,
+    _resolve_artifact_python,
+    _resolve_node_executable,
 )
 from localdesk.desktop.workspace import DesktopWorkspace, WorkspaceConfig
 
@@ -182,3 +185,19 @@ def test_memory_records_event_and_explicit_keep_preference(tmp_path: Path) -> No
 
     assert card.event_id in stored["events"]
     assert stored["preferences"] == {"industry": 1}
+
+
+def test_weekly_tool_runtime_paths_are_configurable(tmp_path: Path, monkeypatch) -> None:
+    node = tmp_path / "node.exe"
+    python = tmp_path / "python.exe"
+    soffice = tmp_path / "soffice.com"
+    node.write_bytes(b"node")
+    python.write_bytes(b"python")
+    soffice.write_bytes(b"soffice")
+    monkeypatch.setenv("LOCALDESK_NODE", str(node))
+    monkeypatch.setenv("LOCALDESK_ARTIFACT_PYTHON", str(python))
+    monkeypatch.setenv("LOCALDESK_SOFFICE_PATH", str(soffice))
+
+    assert _resolve_node_executable() == str(node.resolve())
+    assert _resolve_artifact_python() == str(python.resolve())
+    assert _find_soffice() == str(soffice)

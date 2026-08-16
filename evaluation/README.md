@@ -81,7 +81,7 @@ python evaluation/run_phase4_evaluation.py
 .\.venv\Scripts\python.exe evaluation\run_phase5_evaluation.py
 ```
 
-该脚本记录 UIA workflow 的离线回归：窗口白名单、确认绑定、状态变化时停止并人工接管，以及 state-bound fallback。真实验收使用仓库自建的 WinForms 测试窗口和构造文本完成，不访问外部系统；详情见 `docs/phase5_desktop_computer_use.md`。
+该脚本记录 UIA workflow 的离线回归：窗口白名单、确认绑定、状态变化时停止并人工接管，以及 state-bound fallback。真实验收使用仓库自建的 WinForms 测试窗口和构造文本完成，不访问外部系统；历史详情见 `docs/archive/development/phase5_desktop_computer_use.md`。
 
 ## Phase 6A：基线冻结、真实 Office Demo 与公网 Trace
 
@@ -129,4 +129,4 @@ dry-run 只校验 commit、任务哈希、字段转换、目录约定和官方�
 .\.venv\Scripts\python.exe -m pytest tests\test_spreadsheet.py -q
 ```
 
-详细的用户能力、测试与 Docker/WSL2 环境状态见 [`docs/phase7_sprint1_excel_environment.md`](../docs/phase7_sprint1_excel_environment.md)。
+详细的用户能力、测试与 Docker/WSL2 历史环境状态见 [`docs/archive/development/phase7_sprint1_excel_environment.md`](../docs/archive/development/phase7_sprint1_excel_environment.md)。

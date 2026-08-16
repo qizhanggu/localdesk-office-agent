@@ -6,7 +6,7 @@
 
 ## 环境
 
-- Windows；受限检查环境显示 Python 3.11.9，但实际安装依赖、运行测试和 CLI 验证的主机解释器为 `D:\\anaconda3\\python.exe`（Python 3.12.7）。两者环境隔离，后续必须建立项目专用虚拟环境。
+- Windows；受限检查环境显示 Python 3.11.9，但实际安装依赖、运行测试和 CLI 验证使用 Python 3.12.7。两者环境隔离，后续必须建立项目专用虚拟环境。
 - 项目以 editable 方式安装；运行依赖来自 `pyproject.toml`
 - 开发依赖：pytest 9.1.1、pytest-asyncio 1.4.0
 - `uv` 未安装。项目把测试依赖放在 `dependency-groups.dev`，这不是 pip 的 extra；因此当前验证使用 pip 单独安装 pytest 两项依赖。
@@ -21,7 +21,7 @@
 python -m pytest -q -p no:cacheprovider
 ```
 
-测试框架没有权限写入系统临时目录 `C:\Users\Admin\AppData\Local\Temp\pytest-of-Admin`，导致 126 个 setup error；这不是项目断言失败。
+测试框架没有权限写入系统临时目录 `<SYSTEM_TEMP>/pytest-of-<USER>`，导致 126 个 setup error；这不是项目断言失败。
 
 为隔离环境目录权限后，使用：
 

@@ -1,6 +1,6 @@
 {
   "command": [
-    "D:\\Users\\Admin\\Desktop\\localdesk-agent\\.venv\\Scripts\\python.exe",
+    "<WORKSPACE>\\.venv\\Scripts\\python.exe",
     "-m",
     "pytest",
     "-q",
@@ -14,7 +14,7 @@
     "-p",
     "no:cacheprovider",
     "--basetemp",
-    "C:\\Users\\Admin\\AppData\\Local\\Temp\\localdesk-phase6a-0w9mrste"
+    "<SYSTEM_TEMP>\\localdesk-phase6a-0w9mrste"
   ],
   "evaluation_task_set": {
     "by_type": {
