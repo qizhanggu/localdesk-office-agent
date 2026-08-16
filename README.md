@@ -41,7 +41,7 @@ flowchart LR
 
 AI 周报是主 Hero Demo，报销核对是稳定辅助 Demo；文件整理、UIA 和求职材料作为 Additional Capabilities，不与两条主线平均争夺注意力。
 
-## Hero Demo 01：AI 资讯周报
+## Hero Demo — AI Weekly Briefing
 
 用户说：“帮我整理本周 AI 资讯并生成 PPT。”
 
@@ -49,7 +49,7 @@ AI 周报是主 Hero Demo，报销核对是稳定辅助 Demo；文件整理、UI
 
 一次保留的真实任务成功读取 OpenAI 官方 RSS，产生 30 条 Trace 并交付三份产物。正文页被 403 拒绝时，系统明确标记 `official_rss_item_fallback`，没有假装读到了正文。之后一次公网 TLS 超时也以失败任务留痕。
 
-## Hero Demo 02：报销核对
+## Stable Demo — Reimbursement Review
 
 用户说：“帮我核对这些报销材料。”
 
