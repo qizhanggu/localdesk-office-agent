@@ -1,0 +1,94 @@
+{
+  "schema_version": "1.0",
+  "status": "b0_b1_metadata_only_not_deployed",
+  "source": {
+    "repository": "https://github.com/TheAgentCompany/TheAgentCompany",
+    "commit": "98b68ef82a47690c316f42fddb05baafaab56851",
+    "official_task_count": 175
+  },
+  "environment": {
+    "docker_installed": false,
+    "large_images_downloaded": false,
+    "official_free_disk_requirement": "30+ GB",
+    "services": [
+      "GitLab",
+      "Plane",
+      "ownCloud",
+      "RocketChat"
+    ]
+  },
+  "shortlist": [
+    {
+      "id": "admin-arrange-meeting-rooms",
+      "requirement": "Compute the minimum number of rooms, write ans.txt, and message Chen Xinyi.",
+      "systems": ["local workspace", "RocketChat"],
+      "artifact": "/workspace/ans.txt and a RocketChat message",
+      "verification": "Deterministic file-content and chat-history checkpoints",
+      "localdesk_fit": "medium",
+      "missing": ["RocketChat connector", "outbound-message confirmation"]
+    },
+    {
+      "id": "admin-check-employees-budget-and-reply-and-record",
+      "requirement": "Collect equipment requests, read prices, check departmental budgets, negotiate reductions, and record changes.",
+      "systems": ["RocketChat", "ownCloud", "PDF", "local workspace"],
+      "artifact": "Messages and /workspace/result.txt",
+      "verification": "Service-access, chat-history, semantic response, and file checkpoints",
+      "localdesk_fit": "high_product_fit_but_low_current_coverage",
+      "missing": ["authenticated ownCloud access", "RocketChat connector", "multi-turn coworker interaction"]
+    },
+    {
+      "id": "admin-employee-info-reconciliation",
+      "requirement": "Reconcile a local employee CSV with information collected from current employees.",
+      "systems": ["CSV", "RocketChat"],
+      "artifact": "Updated /workspace/employees.csv",
+      "verification": "Deterministic CSV values plus contacted-user count",
+      "localdesk_fit": "high",
+      "missing": ["CSV table editing", "RocketChat connector", "outbound-message confirmation"]
+    },
+    {
+      "id": "admin-get-best-vendor-quote",
+      "requirement": "Collect vendor quotes, validate them, create valid-quotes.csv, upload it, and save a public link.",
+      "systems": ["RocketChat", "ownCloud", "PDF", "CSV"],
+      "artifact": "valid-quotes.csv, uploaded file, and /workspace/link.txt",
+      "verification": "Chat, cloud-file, share-link, and deterministic CSV checkpoints",
+      "localdesk_fit": "high_product_fit_but_high_integration_cost",
+      "missing": ["authenticated ownCloud access", "CSV generation", "public-share action policy", "RocketChat connector"]
+    },
+    {
+      "id": "admin-make-spreadsheet",
+      "requirement": "Read a survey PDF from ownCloud and fill a prepared CSV with beverage counts.",
+      "systems": ["ownCloud", "PDF", "CSV"],
+      "artifact": "/workspace/drinks_survey.csv",
+      "verification": "Deterministic CSV category and count checkpoints",
+      "localdesk_fit": "high",
+      "missing": ["authenticated ownCloud access", "CSV table editing"]
+    },
+    {
+      "id": "admin-read-survey-and-summarise",
+      "requirement": "Read a survey PDF, find the top three drinks, and tell the HR manager.",
+      "systems": ["ownCloud", "PDF", "RocketChat"],
+      "artifact": "RocketChat message",
+      "verification": "Deterministic content checks against the chat history",
+      "localdesk_fit": "high",
+      "missing": ["authenticated ownCloud access", "RocketChat connector", "outbound-message confirmation"]
+    },
+    {
+      "id": "admin-remove-pages-pdf",
+      "requirement": "Download a paper, retain content through References, and save a shortened PDF.",
+      "systems": ["ownCloud", "PDF", "local workspace"],
+      "artifact": "/workspace/openhands_short.pdf",
+      "verification": "File existence, exact page count, and page-text comparison",
+      "localdesk_fit": "medium_high",
+      "missing": ["authenticated ownCloud access", "PDF page editing"]
+    },
+    {
+      "id": "finance-invoice-matching",
+      "requirement": "Match payments.xlsx against invoice PDFs, handle split and combined payments, and report mismatches.",
+      "systems": ["ownCloud", "Excel", "PDF"],
+      "artifact": "/Documents/Financials/flagged_payments.xlsx",
+      "verification": "Reference access, workbook schema, mismatch IDs, and exact total checkpoint",
+      "localdesk_fit": "high_product_fit_but_low_current_coverage",
+      "missing": ["authenticated ownCloud access", "Excel read/write", "structured invoice extraction"]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "phase": "phase3",
+  "recorded_at": "2026-07-21T08:11:32.083536+00:00",
+  "result": {
+    "artifacts": [
+      "markdown",
+      "docx"
+    ],
+    "render": {
+      "page_count": 1,
+      "pdf_created": true,
+      "png_count": 1
+    },
+    "status": "succeeded",
+    "structure": {
+      "approved": true,
+      "findings": [],
+      "heading_count": 3,
+      "paragraph_count": 8,
+      "source_count": 1
+    },
+    "trace_event_types": [
+      "task_created",
+      "tool_requested",
+      "tool_policy_decided",
+      "tool_completed",
+      "tool_verified",
+      "tool_requested",
+      "tool_policy_decided",
+      "tool_completed",
+      "tool_verified",
+      "review_completed",
+      "tool_requested",
+      "tool_policy_decided",
+      "tool_completed",
+      "tool_verified",
+      "docx_structure_verified",
+      "docx_render_verified",
+      "status_changed",
+      "plan_created",
+      "status_changed",
+      "knowledge_searched",
+      "draft_staged",
+      "confirmation",
+      "status_changed",
+      "delivery_preflight_verified",
+      "tool_requested",
+      "tool_policy_decided",
+      "tool_completed",
+      "tool_verified",
+      "artifact_committed",
+      "tool_requested",
+      "tool_policy_decided",
+      "tool_completed",
+      "tool_verified",
+      "artifact_committed",
+      "status_changed"
+    ]
+  },
+  "schema_version": 1,
+  "scope": "constructed-data real DOCX render and confirmed delivery",
+  "success": true
+}

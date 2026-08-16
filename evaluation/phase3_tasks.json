@@ -1,0 +1,26 @@
+[
+  {
+    "id": "d01",
+    "type": "docx_delivery",
+    "task": "从已审阅 Markdown 生成 DOCX staging 并确认交付",
+    "expect": "markdown and docx artifacts"
+  },
+  {
+    "id": "d02",
+    "type": "docx_structure",
+    "task": "检查 DOCX 标题层级、Sources 与来源条目",
+    "expect": "structure approval"
+  },
+  {
+    "id": "d03",
+    "type": "docx_render",
+    "task": "渲染检查器报告失败",
+    "expect": "task fails before confirmation"
+  },
+  {
+    "id": "d04",
+    "type": "docx_delivery_safety",
+    "task": "确认前篡改 staging DOCX",
+    "expect": "all artifacts blocked"
+  }
+]

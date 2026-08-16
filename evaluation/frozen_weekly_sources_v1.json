@@ -1,0 +1,28 @@
+{
+  "version": "weekly-official-sources-v1",
+  "frozen_at": "2026-08-10",
+  "max_items_per_category": 3,
+  "sources": [
+    {
+      "source_id": "deepmind-blog-rss",
+      "category": "model",
+      "feed_url": "https://deepmind.google/blog/rss.xml",
+      "article_domains": ["deepmind.google"],
+      "keywords": ["model", "gemini", "research", "intelligence", "reasoning"]
+    },
+    {
+      "source_id": "openai-news-rss",
+      "category": "agent_product",
+      "feed_url": "https://openai.com/news/rss.xml",
+      "article_domains": ["openai.com"],
+      "keywords": ["agent", "chatgpt", "codex", "product", "tool"]
+    },
+    {
+      "source_id": "microsoft-official-blog-rss",
+      "category": "industry",
+      "feed_url": "https://blogs.microsoft.com/feed/",
+      "article_domains": ["blogs.microsoft.com"],
+      "keywords": ["ai", "cloud", "industry", "infrastructure", "adoption", "partnership"]
+    }
+  ]
+}

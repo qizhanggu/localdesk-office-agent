@@ -1,0 +1,326 @@
+{
+  "benchmark_id": "localdesk-product-eval-v1",
+  "manifest_sha256": "04171cec83a9b5dc0af58a2f1e0388da5111699d9b9134977b8f7df137cc57e8",
+  "started_at": "2026-08-10T07:01:28.399588+00:00",
+  "run_root": "<WORKSPACE>\\.localdesk\\product-eval-v1-final-20260810",
+  "rules": {
+    "success_definition": "Task passes only when every listed deterministic check passes.",
+    "artifact_not_chat": true,
+    "semantic_review": "Deterministic evidence checks; no LLM-as-Judge.",
+    "prompt_or_rule_changes_after_run": "Forbidden. Mechanical bug fixes require a version note and full rerun."
+  },
+  "summary": {
+    "task_count": 18,
+    "passed": 18,
+    "failed": 0,
+    "task_success_rate": 1.0,
+    "single_role_coverage": 0.3333333333333333,
+    "three_role_coverage": 1.0,
+    "repeat_rate_without_memory": 1.0,
+    "repeat_rate_with_memory": 0.0,
+    "policy_interception_rate": 1.0,
+    "verification_failure_detection_rate": 1.0,
+    "trace_completeness_rate": 1.0,
+    "token_count": 0,
+    "cost_usd": 0.0,
+    "human_delete_or_modify_count": null,
+    "human_feedback_note": "No real user study was run; deterministic review only.",
+    "latency_ms_total": 299.043
+  },
+  "results": [
+    {
+      "id": "ma01",
+      "group": "main_agent",
+      "case": "route",
+      "passed": true,
+      "latency_ms": 0.046,
+      "observations": {
+        "intent": "weekly_briefing",
+        "workflow": "weekly_briefing",
+        "steps": 5,
+        "executable": true
+      },
+      "error": null
+    },
+    {
+      "id": "ma02",
+      "group": "main_agent",
+      "case": "route",
+      "passed": true,
+      "latency_ms": 0.023,
+      "observations": {
+        "intent": "reimbursement",
+        "workflow": "reimbursement",
+        "steps": 4,
+        "executable": true
+      },
+      "error": null
+    },
+    {
+      "id": "ma03",
+      "group": "main_agent",
+      "case": "unsupported",
+      "passed": true,
+      "latency_ms": 0.012,
+      "observations": {
+        "intent": "unsupported",
+        "workflow": null,
+        "steps": 1,
+        "executable": false
+      },
+      "error": null
+    },
+    {
+      "id": "ma04",
+      "group": "main_agent",
+      "case": "unsupported",
+      "passed": true,
+      "latency_ms": 0.01,
+      "observations": {
+        "intent": "unsupported",
+        "workflow": null,
+        "steps": 1,
+        "executable": false
+      },
+      "error": null
+    },
+    {
+      "id": "ma05",
+      "group": "main_agent",
+      "case": "empty_query",
+      "passed": true,
+      "latency_ms": 0.009,
+      "observations": {
+        "error": "用户任务不能为空。"
+      },
+      "error": null
+    },
+    {
+      "id": "rs01",
+      "group": "research",
+      "case": "role_coverage",
+      "passed": true,
+      "latency_ms": 0.006,
+      "observations": {
+        "covered_roles": 1,
+        "total_roles": 3,
+        "coverage": 0.3333333333333333
+      },
+      "error": null
+    },
+    {
+      "id": "rs02",
+      "group": "research",
+      "case": "role_coverage",
+      "passed": true,
+      "latency_ms": 0.005,
+      "observations": {
+        "covered_roles": 3,
+        "total_roles": 3,
+        "coverage": 1.0
+      },
+      "error": null
+    },
+    {
+      "id": "rv01",
+      "group": "reviewer",
+      "case": "evidence_review",
+      "passed": true,
+      "latency_ms": 0.144,
+      "observations": {
+        "approved": true,
+        "supported_cards": 3,
+        "blockers": []
+      },
+      "error": null
+    },
+    {
+      "id": "rv02",
+      "group": "reviewer",
+      "case": "evidence_review",
+      "passed": true,
+      "latency_ms": 0.045,
+      "observations": {
+        "approved": false,
+        "supported_cards": 2,
+        "blockers": [
+          "摘要或标题未被引用片段支持: Official agent_product update"
+        ]
+      },
+      "error": null
+    },
+    {
+      "id": "ed01",
+      "group": "editor",
+      "case": "title_dedup",
+      "passed": true,
+      "latency_ms": 0.057,
+      "observations": {
+        "selected_cards": 3
+      },
+      "error": null
+    },
+    {
+      "id": "mm01",
+      "group": "memory",
+      "case": "repeat_rate",
+      "passed": true,
+      "latency_ms": 0.03,
+      "observations": {
+        "repeat_rate": 1.0,
+        "selected_cards": 3
+      },
+      "error": null
+    },
+    {
+      "id": "mm02",
+      "group": "memory",
+      "case": "repeat_rate",
+      "passed": true,
+      "latency_ms": 0.028,
+      "observations": {
+        "repeat_rate": 0.0,
+        "selected_cards": 0
+      },
+      "error": null
+    },
+    {
+      "id": "pl01",
+      "group": "runtime",
+      "case": "policy_deny",
+      "passed": true,
+      "latency_ms": 3.66,
+      "observations": {
+        "effect": "deny",
+        "reason": "Desktop v1 不允许 delete"
+      },
+      "error": null
+    },
+    {
+      "id": "pl02",
+      "group": "runtime",
+      "case": "policy_deny",
+      "passed": true,
+      "latency_ms": 3.868,
+      "observations": {
+        "effect": "deny",
+        "reason": "Desktop v1 不允许 shell"
+      },
+      "error": null
+    },
+    {
+      "id": "ap01",
+      "group": "runtime",
+      "case": "bundle_reject",
+      "passed": true,
+      "latency_ms": 42.561,
+      "observations": {
+        "status": "cancelled",
+        "artifact_count": 0,
+        "output_count": 0,
+        "xlsx_valid": false,
+        "events": [
+          "task_created",
+          "status_changed",
+          "plan_created",
+          "status_changed",
+          "confirmation",
+          "status_changed"
+        ],
+        "error": null,
+        "task_dir": "<WORKSPACE>\\.localdesk\\product-eval-v1-final-20260810\\ap01\\tasks\\f1536625-ae0d-47af-92dd-9f5177815e7a"
+      },
+      "error": null
+    },
+    {
+      "id": "ar01",
+      "group": "artifact",
+      "case": "bundle_success",
+      "passed": true,
+      "latency_ms": 89.283,
+      "observations": {
+        "status": "succeeded",
+        "artifact_count": 1,
+        "output_count": 1,
+        "xlsx_valid": true,
+        "events": [
+          "task_created",
+          "status_changed",
+          "plan_created",
+          "status_changed",
+          "confirmation",
+          "status_changed",
+          "artifact_bundle_preflight_passed",
+          "tool_requested",
+          "tool_policy_decided",
+          "tool_completed",
+          "tool_verified",
+          "artifact_committed",
+          "status_changed"
+        ],
+        "error": null,
+        "task_dir": "<WORKSPACE>\\.localdesk\\product-eval-v1-final-20260810\\ar01\\tasks\\654de570-6db0-4dea-9f21-2f741a51fb2a"
+      },
+      "error": null
+    },
+    {
+      "id": "vf01",
+      "group": "artifact",
+      "case": "bundle_tamper",
+      "passed": true,
+      "latency_ms": 67.802,
+      "observations": {
+        "status": "failed",
+        "artifact_count": 0,
+        "output_count": 0,
+        "xlsx_valid": false,
+        "events": [
+          "task_created",
+          "status_changed",
+          "plan_created",
+          "status_changed",
+          "confirmation",
+          "status_changed",
+          "artifact_bundle_delivery_failed",
+          "status_changed"
+        ],
+        "error": "暂存产物哈希已变化：<WORKSPACE>\\.localdesk\\product-eval-v1-final-20260810\\vf01\\tasks\\9daab281-3b53-4783-b579-25441df94725\\staging\\result.xlsx",
+        "task_dir": "<WORKSPACE>\\.localdesk\\product-eval-v1-final-20260810\\vf01\\tasks\\9daab281-3b53-4783-b579-25441df94725",
+        "verification_detected": true
+      },
+      "error": null
+    },
+    {
+      "id": "tr01",
+      "group": "runtime",
+      "case": "trace_complete",
+      "passed": true,
+      "latency_ms": 91.454,
+      "observations": {
+        "status": "succeeded",
+        "artifact_count": 1,
+        "output_count": 1,
+        "xlsx_valid": true,
+        "events": [
+          "task_created",
+          "status_changed",
+          "plan_created",
+          "status_changed",
+          "confirmation",
+          "status_changed",
+          "artifact_bundle_preflight_passed",
+          "tool_requested",
+          "tool_policy_decided",
+          "tool_completed",
+          "tool_verified",
+          "artifact_committed",
+          "status_changed"
+        ],
+        "error": null,
+        "task_dir": "<WORKSPACE>\\.localdesk\\product-eval-v1-final-20260810\\tr01\\tasks\\b6165c43-e4d1-4513-9553-cad1a764e858",
+        "missing_events": []
+      },
+      "error": null
+    }
+  ]
+}

@@ -5,13 +5,13 @@ from pathlib import Path
 
 import pytest
 
-from mewcode.desktop.models import ActionKind, PlannedAction, TaskStatus
-from mewcode.desktop.cli import run_desktop_foundation
-from mewcode.desktop.policy import DesktopPolicyGuard
-from mewcode.desktop.registry import create_desktop_registry
-from mewcode.desktop.service import DesktopTaskService, TaskStateError
-from mewcode.desktop.trace_store import TaskTraceStore
-from mewcode.desktop.workspace import DesktopWorkspace, WorkspaceConfig, WorkspaceError
+from localdesk.desktop.models import ActionKind, PlannedAction, TaskStatus
+from localdesk.desktop.cli import run_desktop_foundation
+from localdesk.desktop.policy import DesktopPolicyGuard
+from localdesk.desktop.registry import create_desktop_registry
+from localdesk.desktop.service import DesktopTaskService, TaskStateError
+from localdesk.desktop.trace_store import TaskTraceStore
+from localdesk.desktop.workspace import DesktopWorkspace, WorkspaceConfig, WorkspaceError
 
 
 @pytest.fixture
@@ -162,9 +162,45 @@ def test_rejected_action_cannot_enter_execution(workspace: DesktopWorkspace, tmp
         service.confirm(task, approved=True)
 
 
+def test_auto_deliver_flag_only_applies_to_registered_document_commit(workspace: DesktopWorkspace) -> None:
+    guard = DesktopPolicyGuard(workspace)
+    destination = str(workspace.output_root / "new.md")
+    forged = PlannedAction("forged", "test", ActionKind.WRITE, {"destination": destination, "auto_deliver": True}, "forged")
+    document_commit = PlannedAction("commit", "document.commit_markdown", ActionKind.WRITE, {"destination": destination, "auto_deliver": True}, "commit")
+    email_draft = PlannedAction("email", "mail.commit_eml", ActionKind.WRITE, {"destination": str(workspace.output_root / "draft.eml"), "auto_deliver": True}, "email draft")
+
+    assert guard.evaluate(forged).requires_confirmation
+    assert not guard.evaluate(document_commit).requires_confirmation
+    assert not guard.evaluate(email_draft).requires_confirmation
+
+
 def test_desktop_registry_does_not_leak_coding_tools() -> None:
     names = {tool.name for tool in create_desktop_registry().list_tools()}
     assert names.isdisjoint({"Bash", "WriteFile", "EditFile", "Agent", "TeamCreate"})
+    assert names == {
+        "knowledge.search",
+        "browser.open",
+        "document.stage_markdown",
+        "document.commit_markdown",
+        "document.stage_docx",
+        "document.commit_docx",
+        "document.inspect_docx",
+        "document.stage_pdf",
+        "document.commit_pdf",
+        "document.commit_pptx",
+        "mail.stage_eml",
+        "mail.commit_eml",
+        "files.scan",
+        "files.move",
+        "files.rollback_move",
+        "spreadsheet.inspect",
+        "spreadsheet.stage_transform",
+        "spreadsheet.commit",
+        "desktop.uia.observe",
+        "desktop.uia.set_text",
+        "desktop.uia.invoke",
+        "desktop.visual_fallback",
+    }
 
 
 def test_desktop_cli_creates_trace_only(workspace: DesktopWorkspace, capsys: pytest.CaptureFixture[str]) -> None:
@@ -179,6 +215,6 @@ def test_desktop_cli_creates_trace_only(workspace: DesktopWorkspace, capsys: pyt
     )
     assert exit_code == 0
     output = capsys.readouterr().out
-    assert "desktop tools registered: 0" in output
+    assert "desktop tools registered: 22" in output
     assert "no file operation" in output
     assert len(list(workspace.task_root.iterdir())) == 1

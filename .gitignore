@@ -1,5 +1,6 @@
 config.yaml
 __pycache__/
+.pytest*/
 *.pyc
 .venv/
 *.egg-info/
@@ -7,6 +8,8 @@ dist/
 build/
 .idea/
 .vscode/
-.mewcode/
+.localdesk/*
+!.localdesk/
+!.localdesk/config.yaml.example
 .claude/
 CLAUDE.md

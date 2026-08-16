@@ -1,0 +1,48 @@
+{
+  "command": [
+    "<PYTHON>",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_desktop_foundation.py",
+    "tests/test_desktop_reporting.py",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "<SYSTEM_TEMP>\\localdesk-phase3-9oqzysti"
+  ],
+  "evaluation_task_set": {
+    "by_type": {
+      "docx_delivery": 1,
+      "docx_delivery_safety": 1,
+      "docx_render": 1,
+      "docx_structure": 1
+    },
+    "path": "evaluation/phase3_tasks.json",
+    "task_count": 4
+  },
+  "measured_metrics": {
+    "phase3_regression_pass_rate": 1.0
+  },
+  "not_measured": [
+    "real_renderer_success_rate",
+    "visual_layout_quality",
+    "document_generation_latency"
+  ],
+  "notes": [
+    "The regression suite uses FakeDocxRenderer to test orchestration and refusal paths.",
+    "A real LibreOffice PDF/PNG render is a separate required acceptance gate and is not claimed by this result."
+  ],
+  "phase": "phase3",
+  "pytest_return_code": 0,
+  "recorded_at": "2026-07-21T08:12:23.964910+00:00",
+  "schema_version": 1,
+  "scope": "offline DOCX staging, structural validation, render-gate orchestration, and delivery preflight",
+  "test_summary": {
+    "error": 0,
+    "executed": 30,
+    "failed": 0,
+    "passed": 30,
+    "skipped": 0
+  }
+}

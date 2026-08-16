@@ -1,0 +1,49 @@
+{
+  "command": [
+    "<PYTHON>",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_desktop_foundation.py",
+    "tests/test_desktop_reporting.py",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "<SYSTEM_TEMP>\\localdesk-phase2-alv1vfoy"
+  ],
+  "evaluation_task_set": {
+    "by_type": {
+      "browser_research": 1,
+      "browser_safety": 3,
+      "deterministic_review": 1
+    },
+    "path": "evaluation/phase2_tasks.json",
+    "task_count": 5
+  },
+  "measured_metrics": {
+    "phase2_regression_pass_rate": 1.0
+  },
+  "not_measured": [
+    "live_internet_task_success_rate",
+    "search_engine_discovery_quality",
+    "citation_factual_correctness",
+    "browser_latency",
+    "model_quality_or_cost"
+  ],
+  "notes": [
+    "Every browser response is supplied by FakeBrowserAdapter or httpx.MockTransport; no live website is used in this regression result.",
+    "The task set describes covered scenarios. It is not reported as an end-to-end task-success percentage."
+  ],
+  "phase": "phase2",
+  "pytest_return_code": 0,
+  "recorded_at": "2026-07-20T17:53:13.054032+00:00",
+  "schema_version": 1,
+  "scope": "offline controlled public-web research and deterministic-review regression",
+  "test_summary": {
+    "error": 0,
+    "executed": 27,
+    "failed": 0,
+    "passed": 27,
+    "skipped": 0
+  }
+}

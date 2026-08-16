@@ -7,16 +7,16 @@ from typing import AsyncIterator
 
 import pytest
 
-from mewcode.client import LLMClient
-from mewcode.desktop.grounded_renderer import GroundedLLMRenderer, GroundedRenderError
-from mewcode.desktop.policy import DesktopPolicyGuard
-from mewcode.desktop.reporting import KnowledgeReportWorkflow
-from mewcode.desktop.service import DesktopTaskService
-from mewcode.desktop.skills.document import DocumentSkill
-from mewcode.desktop.skills.knowledge import KnowledgeSkill
-from mewcode.desktop.trace_store import TaskTraceStore
-from mewcode.desktop.workspace import DesktopWorkspace, WorkspaceConfig
-from mewcode.tools.base import StreamEnd, StreamEvent, TextDelta
+from localdesk.client import LLMClient
+from localdesk.desktop.grounded_renderer import GroundedLLMRenderer, GroundedRenderError
+from localdesk.desktop.policy import DesktopPolicyGuard
+from localdesk.desktop.reporting import KnowledgeReportWorkflow
+from localdesk.desktop.service import DesktopTaskService
+from localdesk.desktop.skills.document import DocumentSkill
+from localdesk.desktop.skills.knowledge import KnowledgeSkill
+from localdesk.desktop.trace_store import TaskTraceStore
+from localdesk.desktop.workspace import DesktopWorkspace, WorkspaceConfig
+from localdesk.tools.base import StreamEnd, StreamEvent, TextDelta
 
 
 class FakeLLM(LLMClient):

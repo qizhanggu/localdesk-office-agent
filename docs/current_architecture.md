@@ -1,59 +1,66 @@
-# 当前代码架构审计（MewCode 基线）
+# LocalDesk 当前产品架构
 
-> 审计日期：2026-07-16
-> 基线：Git tag `baseline-mewcode-original`（commit `eafa4a0`）
-> 目的：说明当前 Coding Agent 如何工作，为 LocalDesk Agent 改造建立事实依据。本文不代表新增功能已经实现。
+## 一句话理解
 
-## 1. 当前产品形态
+Main Agent 像前台：听懂用户要办什么事并安排流程；Workflow 像熟练员工：稳定完成具体办公任务；Controlled Runtime 像公司的审批和审计系统：决定动作能不能做、是否要确认、结果是否真的完成。
 
-当前代码是 Python 3.11 的终端 Coding Agent。它以 Textual 终端界面为主，同时支持 `-p` 非交互命令和 `--remote` WebSocket 远程模式。
-
-它的默认工具面向代码仓库：读文件、写文件、编辑文件、Glob、Grep 和 Bash；还可装配 MCP、Skill、子 Agent、Team 与 Git Worktree。因此它不是一个可直接安全操作个人目录的 Desktop Agent。
-
-## 2. 一次任务的真实调用链
-
-```text
-python -m mewcode / mewcode CLI
-  -> __main__.py: load_config()、PermissionChecker、create_default_registry()
-  -> app.py: MewCodeApp（Textual 输入、会话、确认弹窗、事件渲染）
-  -> ConversationManager: 维护用户消息和工具结果
-  -> Agent.run(): 调用 LLM，流式接收文本/ToolUse，循环推进
-  -> ToolRegistry: 根据工具名取 Tool，校验 Pydantic 参数
-  -> PermissionChecker: 规则、危险命令、路径沙箱、人工确认
-  -> Tool.execute(): 文件/命令/搜索等实际执行
-  -> ToolResultEvent / PermissionRequest: 结果或确认请求回到 UI
-  -> session / context / filehistory: 保存会话、上下文和编辑备份
+```mermaid
+flowchart TD
+    U["用户自然语言任务"] --> M["Thin Main Agent"]
+    M --> I["识别 intent"]
+    I --> P["生成 3～6 步计划"]
+    P --> S["选择已有 Workflow / Skill"]
+    S --> W1["AI 资讯周报"]
+    S --> W2["报销核对"]
+    S --> W3["文件整理"]
+    W1 --> RT["Controlled Runtime"]
+    W2 --> RT
+    W3 --> RT
+    RT --> REG["Registry + 参数检查"]
+    REG --> POL["Policy Guard"]
+    POL --> APP["必要时人工确认"]
+    APP --> TOOL["Office / File / Web Tool"]
+    TOOL --> VER["结果验证"]
+    VER --> TRACE["Trace + Artifact"]
+    TRACE --> UI["只读 Demo UI<br/>Plan + Approval + Artifact + Timeline"]
+    TRACE --> RB["适用时 journal / rollback"]
 ```
 
-核心循环位于 `mewcode/agent.py::Agent.run()`：模型提出工具调用，Agent 先经过权限检查，再执行工具，并将结果追加回对话；模型根据结果继续决策，直到完成或出错。这个“模型—工具—结果回流”的循环可以复用。
+## AI 周报链路
 
-## 3. 主要模块及改造判断
+```mermaid
+flowchart LR
+    F["冻结来源、时间窗、规则"] --> R1["大模型研究职责"]
+    F --> R2["Agent 产品研究职责"]
+    F --> R3["产业应用研究职责"]
+    R1 --> E["证据卡片"]
+    R2 --> E
+    R3 --> E
+    E --> ED["Editor<br/>事件合并、去重、排序"]
+    MEM["Memory<br/>历史事件、反馈、偏好"] --> ED
+    ED --> REV["Reviewer<br/>结构 + 证据一致性"]
+    REV --> OFF["PPTX + PDF + EML"]
+    OFF --> H["人工确认"]
+    H --> D["正式交付 + Trace"]
+```
 
-| 模块 | 当前职责 | LocalDesk 处理 |
+这里的三路“Agent”是并发职责模块：各自有可审计检索计划，但不调用 LLM。这样先验证多角色拆分、并发、证据链和失败处理是否值得，再决定是否引入模型。
+
+## 关键模块
+
+| 模块 | 做什么 | 当前边界 |
 |---|---|---|
-| `agent.py` | LLM 流式循环、工具调用、确认事件、上下文压缩 | 保留，Desktop Runtime 通过适配层使用它，避免把新逻辑塞入该大文件 |
-| `client.py`、`conversation.py`、`serialization.py` | 模型协议适配与对话序列化 | 保留 |
-| `tools/base.py`、`tools/__init__.py` | Tool 协议、参数 schema、注册表 | 保留；新增 Desktop 专属 Registry |
-| `app.py`、`permission_dialog.py` | Textual 输入、展示、人工确认 | 保留；后续只增补任务状态与确认预览 |
-| `context/`、`memory/session.py` | 长会话压缩、会话恢复 | 保留；不可替代本地资料检索与任务审计 |
-| `permissions/rules.py`、`dangerous.py` | 权限规则、危险命令识别 | 可借鉴；Desktop 另建硬策略层 |
-| `permissions/sandbox.py` | 项目根目录/临时目录范围检查 | 不可直接复用为最终边界，需改为多授权根的 deny-first 校验 |
-| `filehistory/` | 编辑文件前的备份与历史 | 可借鉴备份思路；不能表达移动、重命名、确认与产物 |
-| `mcp/`、`skills/`、`hooks/` | 外部扩展与钩子 | v1 不改动，作为未来扩展点 |
-| `worktree/`、`teams/`、`agents/` | Coding 并行任务、团队协作、Git 工作树 | v1 冻结，不删除，不装配进 Desktop 模式 |
-| `tools/bash.py` | 任意字符串 Shell | Desktop v1 永不注册 |
+| `ThinMainAgent` | 从自然语言识别周报或报销任务，生成短计划 | 规则路由，无长链反思和无限 replan |
+| `OfficialWeeklyResearch` | 读取冻结官方 RSS，筛选时间窗与关键词，尝试读取原文并保存证据 | 正文失败可显式回退到官方 RSS 摘要；不做开放搜索 |
+| `WeeklyBriefingWorkflow` | 并发研究、编辑、Memory、Reviewer、Office 产物 | 摘要不由 LLM 生成 |
+| `WeeklyBriefingMemory` | 保存卡片、事件指纹、反馈和分类偏好 | 尚无定时持续追踪 |
+| `WeeklyBriefingReviewer` | 检查字段、时间、来源、证据支持和版式 | 只做确定性支持检查，不是完整语义事实核查 |
+| `ArtifactBundleDelivery` | 把多份产物绑定成一次确认和交付 | 正式交付前复核路径、SHA-256 和文件结构 |
+| `DesktopToolRegistry` | 统一工具入口 | Workflow 与未来动态 Agent 共用 |
+| `DesktopPolicyGuard` | 判断权限和风险 | deny-first，不允许任意 Shell、删除、覆盖 |
+| `TaskTraceStore` | 保存计划、来源、审批、执行、验证和交付事件 | JSONL，可被 Demo UI 直接回放 |
+| `demo_ui` | 把真实 Task Trace 渲染为只读执行台 | 静态本地页面，不在 UI 内触发真实动作 |
 
-## 4. 当前安全边界的不足
+## 为什么不直接上复杂 Agent 框架
 
-1. `PathSandbox` 对超出根目录的文件路径返回的是“ask”；用户可继续批准。LocalDesk 的越权访问必须直接 `deny`，不能留人工放行通道。
-2. 现有规则提取通常面向单一文件参数；移动/重命名含源、目标两条路径，必须逐条检查。
-3. `Bash` 使用 `asyncio.create_subprocess_shell()`，工作目录限制并不能约束绝对路径、重定向、子进程和网络。
-4. `TraceManager` 服务于子 Agent 执行图；`FileHistory` 服务于编辑回退。两者均不是可持久化、可回放的个人任务审计日志。
-
-## 5. 当前入口和配置边界
-
-- 入口：`mewcode/__main__.py`，当前 CLI 名、描述和数据目录均使用 `mewcode`。
-- 配置：`mewcode/config.py` 读取用户目录和工作目录下的 `.mewcode` 配置。
-- UI：`mewcode/app.py::MewCodeApp` 在运行期装配默认 Registry、MCP、Team、Worktree 等能力。
-
-结论：第一步不全局重命名 `mewcode`。先增加独立 Desktop 入口/模式和独立 Registry，使两种模式能并存；待 v1 稳定后，再以兼容迁移的方式更换用户可见名称、CLI 名与配置目录。
+当前最大的风险不是“规划不够聪明”，而是资料来源、Office 产物和评测能否稳定闭环。先用薄 Main Agent 复用成熟 Workflow，能把失败定位在任务理解、研究、产物或 Runtime 中的具体一层。等真实任务证明短计划不够，再引入模型路由、replan 或更复杂框架。

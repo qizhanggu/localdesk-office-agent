@@ -1,0 +1,33 @@
+{
+  "benchmark_id": "localdesk-product-eval-v2",
+  "frozen_at": "2026-08-10",
+  "change_note": "v1 development run exposed a weak comparator: rs01/rs02 counted configured roles instead of executing sequential versus parallel research. v2 replaces only those two cases, keeps the other 16 tasks unchanged, and is fully rerun.",
+  "rules": {
+    "success_definition": "Task passes only when every listed deterministic check passes.",
+    "artifact_not_chat": true,
+    "semantic_review": "Deterministic evidence checks; no LLM-as-Judge.",
+    "prompt_or_rule_changes_after_run": "Forbidden. Mechanical bug fixes require a version note and full rerun."
+  },
+  "tasks": [
+    {"id":"ma01","group":"main_agent","case":"route","input":{"query":"帮我整理本周 AI 资讯并生成 PPT"},"expected_artifacts":[],"checks":{"intent":"weekly_briefing","workflow":"weekly_briefing","steps_min":3,"steps_max":6}},
+    {"id":"ma02","group":"main_agent","case":"route","input":{"query":"帮我核对这些报销发票和支付流水"},"expected_artifacts":[],"checks":{"intent":"reimbursement","workflow":"reimbursement","steps_min":3,"steps_max":6}},
+    {"id":"ma03","group":"main_agent","case":"unsupported","input":{"query":"帮我整理桌面所有文件"},"expected_artifacts":[],"checks":{"intent":"unsupported","executable":false}},
+    {"id":"ma04","group":"main_agent","case":"unsupported","input":{"query":"把报销结果做成 AI 周报 PPT"},"expected_artifacts":[],"checks":{"intent":"unsupported","executable":false}},
+    {"id":"ma05","group":"main_agent","case":"empty_query","input":{"query":"   "},"expected_artifacts":[],"checks":{"error":"用户任务不能为空。"}},
+
+    {"id":"rs01","group":"research","case":"research_mode","input":{"mode":"single_sequential","per_source_delay_ms":40},"expected_artifacts":[],"checks":{"covered_roles":3,"selected_cards":3,"evidence_support_rate":1.0}},
+    {"id":"rs02","group":"research","case":"research_mode","input":{"mode":"three_parallel","per_source_delay_ms":40},"expected_artifacts":[],"checks":{"covered_roles":3,"selected_cards":3,"evidence_support_rate":1.0}},
+    {"id":"rv01","group":"reviewer","case":"evidence_review","input":{"tamper":false},"expected_artifacts":[],"checks":{"approved":true,"supported_cards":3}},
+    {"id":"rv02","group":"reviewer","case":"evidence_review","input":{"tamper":true},"expected_artifacts":[],"checks":{"approved":false,"blocker_contains":"未被引用片段支持"}},
+    {"id":"ed01","group":"editor","case":"title_dedup","input":{"duplicate_titles":true},"expected_artifacts":[],"checks":{"selected_cards":3}},
+    {"id":"mm01","group":"memory","case":"repeat_rate","input":{"memory":false},"expected_artifacts":[],"checks":{"repeat_rate":1.0}},
+    {"id":"mm02","group":"memory","case":"repeat_rate","input":{"memory":true},"expected_artifacts":[],"checks":{"repeat_rate":0.0}},
+
+    {"id":"pl01","group":"runtime","case":"policy_deny","input":{"kind":"delete"},"expected_artifacts":[],"checks":{"effect":"deny"}},
+    {"id":"pl02","group":"runtime","case":"policy_deny","input":{"kind":"shell"},"expected_artifacts":[],"checks":{"effect":"deny"}},
+    {"id":"ap01","group":"runtime","case":"bundle_reject","input":{},"expected_artifacts":[],"checks":{"status":"cancelled","output_count":0}},
+    {"id":"ar01","group":"artifact","case":"bundle_success","input":{},"expected_artifacts":["result.xlsx"],"checks":{"status":"succeeded","artifact_count":1,"xlsx_valid":true}},
+    {"id":"vf01","group":"artifact","case":"bundle_tamper","input":{},"expected_artifacts":[],"checks":{"status":"failed","output_count":0,"verification_detected":true}},
+    {"id":"tr01","group":"runtime","case":"trace_complete","input":{},"expected_artifacts":["result.xlsx"],"checks":{"status":"succeeded","required_events":["confirmation","artifact_bundle_preflight_passed","tool_policy_decided","tool_completed","tool_verified","artifact_committed"]}}
+  ]
+}

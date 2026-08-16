@@ -1,0 +1,29 @@
+{
+  "version": "weekly-official-sources-v3",
+  "frozen_at": "2026-08-10",
+  "change_note": "v2 development probe timed out while fetching the same feed three times. v3 keeps the same official source and keywords, reduces the Hero Demo to one card per category, and is used with feed caching plus bounded mechanical retries.",
+  "max_items_per_category": 1,
+  "sources": [
+    {
+      "source_id": "openai-model-news-rss",
+      "category": "model",
+      "feed_url": "https://openai.com/news/rss.xml",
+      "article_domains": ["openai.com"],
+      "keywords": ["gpt-5.6", "model", "reasoning", "intelligence"]
+    },
+    {
+      "source_id": "openai-agent-product-rss",
+      "category": "agent_product",
+      "feed_url": "https://openai.com/news/rss.xml",
+      "article_domains": ["openai.com"],
+      "keywords": ["agent", "codex", "chatgpt work", "tool"]
+    },
+    {
+      "source_id": "openai-industry-rss",
+      "category": "industry",
+      "feed_url": "https://openai.com/news/rss.xml",
+      "article_domains": ["openai.com"],
+      "keywords": ["enterprise", "workforce", "infrastructure", "adoption", "partnership", "business"]
+    }
+  ]
+}

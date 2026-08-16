@@ -1,0 +1,53 @@
+{
+  "command": [
+    "<WORKSPACE>\\.venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_desktop_computer_use.py",
+    "tests/test_file_workflow.py",
+    "tests/test_desktop_foundation.py",
+    "tests/test_desktop_reporting.py",
+    "tests/test_grounded_renderer.py",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "<SYSTEM_TEMP>\\localdesk-phase5-svi6yxu3"
+  ],
+  "evaluation_task_set": {
+    "by_type": {
+      "approval_binding": 1,
+      "manual_takeover": 1,
+      "uia_happy_path": 1,
+      "uia_whitelist": 1,
+      "visual_fallback": 1
+    },
+    "path": "evaluation/phase5_tasks.json",
+    "task_count": 5
+  },
+  "measured_metrics": {
+    "phase5_regression_pass_rate": 1.0,
+    "task_scenarios_covered": 5
+  },
+  "not_measured": [
+    "arbitrary_third_party_app_success_rate",
+    "OCR_accuracy",
+    "real_business_system_automation"
+  ],
+  "notes": [
+    "The automated suite uses a deterministic fake adapter for safety and repeatability.",
+    "A separate interactive acceptance used the self-built WinForms test app and Windows Computer Use UIA tree; no external system or account was used."
+  ],
+  "phase": "phase5",
+  "pytest_return_code": 0,
+  "recorded_at": "2026-07-21T13:34:26.331107+00:00",
+  "schema_version": 1,
+  "scope": "Windows UIA task orchestration, window whitelist, confirmation binding, manual takeover, and state-bound visual fallback",
+  "test_summary": {
+    "error": 0,
+    "executed": 49,
+    "failed": 0,
+    "passed": 48,
+    "skipped": 1
+  }
+}

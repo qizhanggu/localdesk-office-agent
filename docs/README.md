@@ -1,22 +1,21 @@
-# LocalDesk Agent 文档归档
+# LocalDesk 文档入口
 
-这里是项目的统一入口。阅读顺序建议：先看“项目总览”，再看 README 和各阶段验收报告。
+这里默认只展示当前产品需要阅读的文档。历史 Phase、早期计划和公共 Benchmark 可行性调研均保留在 [archive](archive/README.md)，不代表当前产品能力或公开榜单成绩。
 
-| 文档 | 用途 |
-|---|---|
-| [项目总览](项目总览.md) | 当前是否完成、总计划、阶段进展、大白话说明、简历文案 |
-| [根目录总计划](../计划.md) | 完整架构、参考项目取舍与原始实施计划 |
-| [当前架构审计](current_architecture.md) | MewCode 原始底座如何运行、哪些保留/冻结 |
-| [重构设计](refactor_plan.md) | LocalDesk 模块边界与安全规则 |
-| [基线验证](baseline_validation.md) | 原底座测试环境与已知历史失败 |
-| [Phase 1](phase1_foundation.md) | Task/Policy/Trace/Foundation |
-| [Phase 2](phase2_acceptance.md) | 引用检索、staging、确认交付 |
-| [Phase 2.5](phase25_acceptance.md) | Grounded LLM 结构化渲染边界 |
-| [Phase 3](phase3_acceptance.md) | 文件整理/operation journal/回滚核心模块 |
-| [Phase 4](phase4_acceptance.md) | 评估、README、Demo、求职材料最终验收 |
-| [报告 Demo](report_demo.md) | 无敏感两步交付演示 |
-| [教师查看入口](teacher_review.md) | 一页了解项目能力、证据、边界与待讨论方向 |
-| [DeepSeek 真实评估说明](deepseek_real_eval.md) | 不提交 API Key 的本地配置与 5–10 条样例评估方式 |
-| [求职材料](job_materials.md) | 简历描述、90 秒介绍、深挖问题 |
+## 当前文档
 
-评估集位于 [`evaluation/evaluation_tasks.json`](../evaluation/evaluation_tasks.json)。
+| 推荐顺序 | 文档 | 适合回答的问题 |
+|---:|---|---|
+| 1 | [产品架构](current_architecture.md) | Main Agent、Workflow 和 Runtime 怎么配合？ |
+| 2 | [稳定演示手册](demo_runbook.md) | 面试时如何在 2～3 分钟内展示完整过程？ |
+| 3 | [冻结评测报告](product_eval_report_v2.md) | 18 条任务测了什么，结果边界是什么？ |
+| 4 | [AI 周报真实证据](phase8_ai_weekly_briefing.md) | 真实 RSS、403 fallback 和 Office 交付如何留痕？ |
+| 5 | [Portfolio Release 验收](portfolio_release_validation.md) | 安装、测试、Demo、链接和安全扫描是否通过？ |
+| 6 | [面试讲解手册](interview_guide.md) | 常见追问、真实失败和简历描述怎么讲？ |
+
+## 历史资料
+
+- [开发阶段与实验归档](archive/development/README.md)
+- [LocalDesk v1 归档](archive/v1/README.md)
+
+事实优先级：代码与真实产物 → 测试与 Trace → 冻结评测报告 → 当前文档 → 历史计划。历史文档中出现的“计划”“待审批”或阶段结论不能覆盖后续真实验收。

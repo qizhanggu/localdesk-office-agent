@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0",
+  "pilot_name": "localdesk-officebench-feasibility-pilot",
+  "experiment_version": "ob-pilot-v0-metadata",
+  "status": "b0_b1_metadata_only_not_run",
+  "source": {
+    "repository": "https://github.com/zlwang-cs/OfficeBench",
+    "commit": "b978b808667c32b52ce19a67ce1def1de9ae02b7",
+    "task_counts": {
+      "single_app": 93,
+      "two_app": 95,
+      "three_app": 112,
+      "total": 300
+    }
+  },
+  "split_policy": {
+    "development_tasks": 2,
+    "frozen_evaluation_tasks": 3,
+    "stratification": "application_count_and_output_type",
+    "evaluation_tasks_are_resume_claim": false,
+    "note": "The three frozen evaluation tasks are an OfficeBench integration feasibility pilot only. The sample is too small to represent a benchmark score or a resume claim."
+  },
+  "development_tasks": [
+    {
+      "id": "1-16/0",
+      "task_file_sha256": "c51cb9cba5645af1d37ee5d36a5b5c05022a4443925f62d77d39ead864f066ba",
+      "summary": "Read a TXT file and create random_paragraph.docx containing its text.",
+      "official_evaluators": [
+        "evaluate_file_exist",
+        "evaluate_contain"
+      ],
+      "reason": "Minimal file-read to DOCX path for validating the adapter and output directory mapping."
+    },
+    {
+      "id": "2-38/0",
+      "task_file_sha256": "7cc63a89366f3ac3cd9e25e52d7e2dc190168a9e76fa11b9d742d1f79ee9d68b",
+      "summary": "Read a notification PDF and create an email artifact for Alice.",
+      "official_evaluators": [
+        "evaluate_contain"
+      ],
+      "reason": "Exercises PDF extraction and the currently missing email artifact boundary without contaminating the frozen evaluation split."
+    }
+  ],
+  "frozen_evaluation_tasks": [
+    {
+      "id": "1-11/0",
+      "task_file_sha256": "5295a70cc5f3fc0d4c3880f4156eec0e29025ec7a404f40509cb0a21746fcac1",
+      "summary": "Sort an Excel score table by midterm1 descending and save sorted_score.xlsx.",
+      "official_evaluators": [
+        "evaluate_exact_match"
+      ],
+      "coverage": "single_app_and_spreadsheet_output"
+    },
+    {
+      "id": "2-26/1",
+      "task_file_sha256": "2abe09a964d26cb0a3c958fc3cd4d520de34475d264c8e62eabc88aa4fdc961d",
+      "summary": "Extract text from market_analysis.pdf and create market_analysis.docx.",
+      "official_evaluators": [
+        "evaluate_contain"
+      ],
+      "coverage": "two_app_file_read_and_document_output"
+    },
+    {
+      "id": "3-3/0",
+      "task_file_sha256": "ea865d446b9b7e923a32edf898f61663150fbf5b3ae139a8fe851c732ad2a284",
+      "summary": "Convert a Word training manual to manual.pdf and distribute it to Alice as an email artifact.",
+      "official_evaluators": [
+        "evaluate_file_exist",
+        "evaluate_contain"
+      ],
+      "coverage": "three_app_document_conversion_and_delivery"
+    }
+  ],
+  "evaluation_discipline": {
+    "semantic_tuning_after_first_evaluation_run": "forbidden",
+    "mechanical_bug_examples": [
+      "coordinate conversion",
+      "adapter parameter mapping",
+      "path mapping",
+      "official evaluator invocation"
+    ],
+    "mechanical_bug_fix_requirements": [
+      "record the root cause",
+      "increment experiment_version",
+      "reset all three frozen tasks to their initial state",
+      "rerun all three frozen tasks, not only failed tasks"
+    ]
+  }
+}

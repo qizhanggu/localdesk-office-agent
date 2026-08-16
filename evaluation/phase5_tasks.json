@@ -1,0 +1,7 @@
+[
+  {"id":"u01","type":"uia_happy_path","task":"在自建测试窗口中定位输入框、输入构造文本、提交并验证状态","expect":"status contains submitted input"},
+  {"id":"u02","type":"uia_whitelist","task":"请求未列入 desktop_allowed_window_titles 的窗口","expect":"policy denies before UI input"},
+  {"id":"u03","type":"visual_fallback","task":"视觉 fallback 前窗口状态哈希变化","expect":"manual takeover; no click"},
+  {"id":"u04","type":"manual_takeover","task":"UIA 控件丢失或窗口不唯一","expect":"task fails with takeover trace"},
+  {"id":"u05","type":"approval_binding","task":"拒绝确认桌面输入与提交动作","expect":"no desktop input"}
+]

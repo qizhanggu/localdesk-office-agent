@@ -1,0 +1,35 @@
+{
+  "status": "blocked_official_environment",
+  "experiment_version": "ob-b2a-v1",
+  "task": {
+    "benchmark": "OfficeBench",
+    "benchmark_commit": "b978b808667c32b52ce19a67ce1def1de9ae02b7",
+    "benchmark_task_id": "1-16/0",
+    "user_query": "Create a new word file called random_paragraph.docx and add the content in random_paragraph.txt to it.",
+    "actor": "Alice",
+    "simulated_clock": {
+      "date": "2020-05-01",
+      "weekday": "Friday",
+      "time": "10:00 AM"
+    },
+    "input_root": "<WORKSPACE>\\.localdesk\\benchmark-runs\\ob-b2a-v1\\1-16\\0\\inputs",
+    "staging_root": "<WORKSPACE>\\.localdesk\\benchmark-runs\\ob-b2a-v1\\1-16\\0\\staging",
+    "artifact_root": "<WORKSPACE>\\.localdesk\\benchmark-runs\\ob-b2a-v1\\1-16\\0\\artifacts",
+    "trace_path": "<WORKSPACE>\\.localdesk\\benchmark-runs\\ob-b2a-v1\\1-16\\0\\trace\\adapter_trace.jsonl",
+    "required_artifacts": [
+      "random_paragraph.docx"
+    ]
+  },
+  "evaluator_probe": {
+    "available": false,
+    "blocked_reasons": [
+      "docker_command_not_found",
+      "official_testbed_inputs_not_materialized"
+    ],
+    "entrypoint": "<WORKSPACE>\\.localdesk\\benchmark-sources\\officebench\\evaluation.py",
+    "docker_path": null
+  },
+  "runtime_called": false,
+  "filesystem_prepared": false,
+  "note": "Dry-run only: no model, Runtime bridge, official evaluator, task workspace or formal output was invoked or created."
+}

@@ -1,0 +1,407 @@
+# LocalDesk Office Agent 改造总计划（历史基线）
+
+> **2026-08-10 状态说明：** 本文保留早期重构路线用于追溯，不再作为当前能力清单。当前事实请以代码、测试、[README](../../../README.md)、[当前产品架构](../../current_architecture.md)、[AI 周报 Hero Demo](../../phase8_ai_weekly_briefing.md) 和 [冻结评测 v2](../../product_eval_report_v2.md) 为准。本文后文中的“待审批”“未完成”描述可能已经过期，不能覆盖后续真实验收结果。
+
+> 文档状态：待审批。本文是后续实现的唯一阶段基线；任何已完成能力、测试结果和指标，均以代码与可复现证据为准。
+>
+> 项目来源：仓库以 MewCode Python Coding Agent 作为学习型底座。LocalDesk 的个人改造集中于面向本地办公任务的 Runtime、安全策略、工具、Trace、测试与展示；不将整个 Coding Agent 框架表述为从零开发。
+
+## 阶段总览（一句话版）
+
+| 阶段 | 一句话要完成的事 | 阶段结束时真正可运行的能力 |
+|---|---|---|
+| Phase 0：基线复核 | 用测试和代码确认项目现在真实会什么、不会什么，并从此建立逐阶段积累的评测基线。 | 可以可信地说明当前 LocalDesk 的能力边界、回归基线与已验证结果。 |
+| Phase 1：统一 Runtime | 优先把“本地检索 → Markdown staging → 确认交付 → Trace”接入同一个安全 Runtime。 | 这条最核心纵向闭环经统一入口真实运行、可回归测试、可审计。 |
+| Phase 2：求职研究闭环 | 加入受控 Browser 与确定性 Reviewer，打通“本地材料 + 公开岗位信息 → 带引用报告”。 | 能生成可追溯的岗位匹配与面试准备 Markdown 草稿，并确认交付。 |
+| Phase 3：办公文档交付 | 将报告稳定输出为 Markdown + DOCX（可选 PDF），并做结构与渲染校验。 | 用户能拿到可打开、可阅读、引用完整的正式办公文档。 |
+| Phase 4：文件整理接入 | 将 dry-run、确认、移动、journal、rollback 纳入同一个真实任务。 | 报告交付后可独立批准、执行并回滚受控文件整理。 |
+| Phase 5：Desktop Computer Use | 用 Windows UIA 优先、视觉 fallback 补齐一条可重复的桌面自动化 Demo。 | 能在测试应用中安全地识别控件、执行动作、验证并人工接管。 |
+| Phase 6A：必做展示与评测 | 完成可复现评测、Demo、README 与简洁任务看板。 | 项目具备真实指标、完整展示材料与可观察任务过程。 |
+| Phase 6B：按场景扩展 | 仅在实际场景证明需要时再加入 Memory、Scheduler 或 Multi-Agent。 | 每一项高级能力都有明确收益、权限边界与对照评测。 |
+| Phase 7：公共 Benchmark 可行性验证 | 用 OfficeBench 主线和 TheAgentCompany 桌面调研校准 LocalDesk 的真实办公任务覆盖率。 | 得到官方任务能力映射、Windows 可行性结论，以及最多 3 条官方任务的最薄适配验证。 |
+
+## 1. 产品定位与首个真实场景
+
+### 已批准的执行约束
+
+- 连续推进 **Phase 0 → Phase 1 → Phase 2**，但每条可见能力必须先通过对应验收与回归测试。
+- 从 Phase 0 开始建立评测基线；后续阶段只新增可复现任务、指标与结果，不覆盖或虚构旧结果。
+- Phase 1 的第一优先级是完成“本地资料检索 → Markdown staging → 用户确认 → 正式交付 → Trace”的统一 Runtime 纵向闭环，而不是先扩展暂停、Web UI 或多工具生态。
+- Phase 2 的 Reviewer 第一版采用确定性规则校验引用、证据、敏感信息与交付条件；不提前引入 Role Agent 或 LLM 审稿人。
+- Phase 6 分为必做的 **6A（评测、Demo、README、简洁看板）** 与按真实场景决定的 **6B（Memory、Scheduler、Multi-Agent）**。
+
+### 1.1 项目定位
+
+> **LocalDesk Office Agent：私有、受控、可审计的个人 AI 办公助手。**
+
+它不是让大模型自由接管电脑的“万能自动化机器人”，而是将一个办公任务拆成可检查的步骤：读取已授权资料、检索公开信息、生成产物、预览、用户确认、执行受控变更，并留下可回放证据。
+
+### 1.2 首个代表性 Demo：求职研究与材料交付
+
+用户授权一份构造的求职资料目录，提出：
+
+> “读取我的简历和项目材料，检索目标公司的公开 Agent 开发岗位；比较岗位要求与我的经历，生成岗位匹配报告和面试准备清单，并整理到求职目录。”
+
+完整任务链路：
+
+```text
+用户目标与授权范围
+  -> 生成可审阅计划
+  -> 本地 Knowledge 检索（简历、项目材料）
+  -> Browser 检索公开岗位信息
+  -> 合并、校验本地/网页引用
+  -> 生成 Markdown / DOCX 到 task staging
+  -> 预览、哈希校验、用户确认
+  -> 交付 output_root
+  -> （可选）文件整理 dry-run、独立确认、执行、journal、rollback
+  -> Trace、指标与可回放结果
+```
+
+选择该场景的原因：它直接服务秋招；能自然展示 RAG、Browser Tool、Tool Calling、安全审批、文档交付与可观测性；而且可以完全使用构造资料与公开网页，不触碰个人敏感资料或公司内部资料。
+
+### 1.3 当前已知基础与真实缺口
+
+当前仓库已经实现并有测试覆盖的基础包括：
+
+- 授权目录内的 MD/TXT/文本型 PDF 检索，以及行号或页码级引用；
+- 基于检索证据的 Markdown staging、SHA-256 复核与确认交付；
+- 文件整理的 dry-run、串行 move、operation journal 与独立确认回滚；
+- `read_roots`、`managed_roots`、`output_root`、`task_root` 的路径边界；
+- deny-first Policy Guard、任务快照与 JSONL Trace。
+
+当前不能宣传为已经完成的能力包括：统一且已注册的 Tool Registry、Browser、DOCX/PDF 产物、持久 pause/resume/retry、审批 token 绑定、Windows UIA、Web UI、长期 Memory、Scheduler、Role Agent 与真实模型评测。
+
+因此，本计划的首要工作不是堆新技术名词，而是让已有能力进入同一条、真实可运行且可验证的任务链。
+
+## 2. 总体架构与核心原则
+
+### 2.1 目标架构
+
+```text
+CLI / 后续 Web UI
+  -> Task Orchestrator / DesktopTaskService
+      -> TaskState + SQLite 快照（恢复查询）
+      -> JSONL Event Stream（不可变审计证据）
+      -> Tool Registry
+          -> Schema Validation
+          -> Capability / Scope Check
+          -> Policy + Risk Decision
+          -> Approval Binding Check
+          -> Tool Adapter Execution
+          -> Postcondition Verification
+          -> Artifact / Trace Update
+      -> Knowledge / Browser / Document / File / Desktop adapters
+```
+
+这里的 `Task Runtime` 可以理解成任务的“总控台”：它不决定报告写什么，却负责确保每一步是谁提出、是否授权、是否需要确认、执行是否成功、失败如何停止，以及最终留下什么证据。
+
+### 2.2 执行优先级
+
+任何事情优先选择更确定、更容易验证的接口：
+
+```text
+专用 API / 结构化库
+  -> DOM / Browser Protocol / Accessibility (UIA)
+  -> Screenshot + OCR + 坐标动作
+```
+
+例如，生成 DOCX 应先使用 `python-docx`，不应点击 Word 界面逐字输入；网页内容应优先由 DOM 提取，不应首先依赖截图与视觉模型。这既更稳定，也更容易测试和讲清工程权衡。
+
+### 2.3 风险与确认模型
+
+| 等级 | 含义 | 默认策略 |
+|---|---|---|
+| R0 Read | 读取已授权的本地资料。 | 允许，但记录 Trace。 |
+| R1 Navigate | 打开、导航、提取允许域名的公开网页。 | 允许，但限制域名与请求范围。 |
+| R2 Draft | 只向 task staging 写草稿或预览产物。 | 允许，但必须校验路径、内容与产物。 |
+| R3 Mutate | 移动、重命名或修改本地文件状态。 | 必须基于精确 dry-run 再单独确认。 |
+| R4 External Write | 提交表单、发送消息、上传或发布内容。 | 本项目默认不做；若未来接入则强制确认。 |
+| R5 Destructive/Sensitive | 删除、覆盖、支付、账号设置、密码或验证码。 | 默认拒绝，不由 Agent 代替用户批准。 |
+
+确认不是一句笼统的“同意继续”，而必须绑定：动作参数、目标资源、风险等级、草稿 SHA-256 或状态指纹、过期时间。确认后文件或参数改变，原确认自动失效。
+
+### 2.4 明确暂缓的内容
+
+以下能力有技术价值，但不属于首个闭环的前置条件：复杂 Multi-Agent、任意 Shell、大量模型 Provider、浏览器登录态复用、邮件/支付/发布、3D 办公室、复杂向量数据库、先造 Web UI 再补 Runtime。它们会在核心 Demo 稳定后按真实收益评估，而不会为了“看起来功能多”提前加入。
+
+## 3. 分阶段实施计划
+
+### Phase 0：基线复核与事实口径统一
+
+**目标**：建立一个可验证的出发点，避免后续改动建立在误判或过时文档上。
+
+**工作项**：
+
+1. 检查 Git 状态、Python 版本、依赖安装状态、CLI 入口与配置加载路径。
+2. 运行现有 Desktop 相关测试及全量测试；记录命令、耗时、通过/失败/跳过原因，不把旧问题误归因于新改造。
+3. 固化第一份评测基线：当前任务集版本、每条任务的预期、离线 Fake Adapter 覆盖范围与结果存放位置。
+4. 从代码而不是 README 确认当前 Knowledge、Document、File、Policy、Trace、CLI 的真实调用关系。
+5. 对齐 README、`docs/` 与本计划中的阶段状态；历史文档可以保留，但必须标出其历史性质。
+6. 输出一份简洁的当前架构与迁移边界记录。
+
+**不做**：不改变产品能力，不引入新依赖，不为了“清理”而重写稳定模块。
+
+**验收标准**：
+
+- 可复现的测试记录；
+- 文档明确区分“已实现”“已测试”“计划中”；
+- 确认现有工作树没有被误覆盖；
+- 后续每个旧 workflow 都有明确迁移入口。
+
+**面试价值**：你能坦诚说明如何在开源底座上完成工程审计、识别安全边界与控制改造风险。
+
+### Phase 1：统一 Task Runtime 与 Tool Registry
+
+**目标**：让所有工具经过统一的 schema、权限、审批、执行验证和 Trace 管道。
+
+**为什么先做它**：若先接浏览器、DOCX 或 GUI，工具会继续各自直接调用，安全和可观测性会越来越难补。Runtime 是后续能力复用的“插座”。
+
+**工作项**：
+
+1. **先交付纵向闭环**：把 Knowledge 检索、Document staging、哈希确认交付和 Trace 迁移为 Registry 管理的受控工具；以 CLI 和端到端测试证明每步都经过统一 Policy/Approval/Verification 管道。
+2. 扩展 `TaskState`：保存原始目标、解析目标、工作区、capability grants、步骤状态、重试次数、产物、审批、错误、checkpoint、耗时与模型/工具统计。
+3. 设计可恢复状态机：`created -> planned -> awaiting_approval -> running -> paused | succeeded | failed | cancelled`；定义重启恢复、取消、超时与有限重试的规则。
+4. 引入 SQLite 作为任务查询/快照存储，保留 JSONL 作为追加式事件证据；明确二者一致性和恢复策略。
+5. 落地 Tool Registry 元数据：输入/输出 schema、风险等级、所需 capability、路径/域名/应用范围、幂等性、超时、前后置条件、补偿策略。
+6. 将 File workflow 迁移为 Registry 管理的 adapter；Desktop 模式不得注册旧 Coding Agent 的 Bash、WriteFile、EditFile、Worktree、Teams 工具。
+7. 引入 Approval Token：绑定动作和当前资源指纹；执行前再次验证，防止 TOCTOU（确认后资源被替换）。
+8. 为外部能力定义 Fake Adapter 接口，让测试不依赖真实模型、浏览器或桌面环境。
+
+**验收标准**：
+
+- 现有两条闭环均经统一管道，而非 workflow 直接绕过；
+- 未批准无副作用，批准后参数/哈希变化会失效；
+- 支持安全取消、恢复和幂等重放的测试用例；
+- 旧 Desktop 安全用例不回归，新增 Runtime/审批/恢复测试；
+- CLI 能查看任务状态与待确认动作。
+
+**面试重点**：解释“LLM 只负责提出计划，Runtime 才负责决定能否执行”的职责分离；说明审批绑定与 TOCTOU 防护。
+
+### Phase 2：Browser 与求职研究闭环
+
+**目标**：实现最重要的端到端 Demo：本地求职材料与公开岗位信息共同支撑一份可追溯报告。
+
+**工作项**：
+
+1. 新增 Browser Adapter，优先使用 Playwright/CDP 或等价 DOM 接口；第一版只读，不提交表单、不登录、不上传。
+2. 支持受控导航、搜索、正文/标题/链接/发布日期提取、下载到 task staging（若启用）、URL 与访问时间记录。
+3. 建立域名 allowlist/denylist、最大页面数/超时/下载类型大小限制；遇登录、验证码、未知页面或写操作进入人工接管。
+4. 建立统一 Citation Schema：本地来源记录文件、片段、页码、哈希；网页来源记录 URL、访问时间、定位片段。
+5. 将网页内容视为不可信资料，防止其中的 prompt injection 改写 Policy、授权或工具调用。
+6. 实现岗位研究任务模板：本地资料检索和公开职位研究可在确实独立时并行；合并后由确定性 Reviewer 校验引用存在性、来源类型、证据覆盖、敏感信息与交付条件。
+7. 使用 Fake Browser 做离线单元/集成测试，另提供真实浏览器的手工验证脚本。
+
+**验收标准**：
+
+- 构造资料和公开岗位样例可产出带本地/网页引用的 Markdown staging；
+- 关键结论无证据时必须降级表达或拒绝输出；
+- 确认前 output 无变化，确认后交付与 Trace 一致；
+- 登录、验证码、超域名、网页注入和外部写操作均被正确拦截或转人工。
+
+**面试重点**：不要只说“接了浏览器”。要讲“网页访问为何仍属于受控工具、引用如何统一、为什么网页文字不能提升权限”。
+
+### Phase 3：结构化办公文档交付与质量验证
+
+**目标**：将可追溯研究结果变成真正可交付的办公文档。
+
+**工作项**：
+
+1. 保持 Markdown 为可审阅的源产物；新增 DOCX 输出，按需要再增加 PDF 导出。
+2. 使用结构化库创建文档、模板、标题、表格、引用列表，而非通过视觉点击 Word。
+3. 所有文件先写入 task staging，记录来源、版本与 SHA-256；用户确认后复制到 `output_root`，默认禁止覆盖同名文件。
+4. 对 DOCX/PDF 做结构和渲染检查：可打开、非空、标题/章节/引用完整、布局无明显异常。
+5. 提供预览、产物元数据、失败原因和 Trace 回放。
+
+**验收标准**：
+
+- 求职研究任务能生成 Markdown + DOCX，PDF 为可选导出；
+- 每个产物均可打开并通过基本质量校验；
+- 引用缺失、空文档、哈希变化或目标冲突会阻止交付；
+- 测试覆盖生成、拒绝、确认与渲染校验。
+
+**面试重点**：强调“生成文件”不是简单保存字符串，而是 staging、质量校验、确认交付与可追溯的完整产物链路。
+
+### Phase 4：文件整理正式接入主任务
+
+**目标**：将已实现的受控文件 workflow 变为主任务中的正式能力，而不是独立内部模块。
+
+**工作项**：
+
+1. 将 File Tool 注册进统一 Runtime，并提供 list、scan、dry-run、move、rename、rollback 等受控原子能力。
+2. 使“交付报告”和“整理文件”成为两个独立审批点；报告获批不等于文件移动获批。
+3. 执行前展示精确 `source -> destination` 清单、冲突和预期影响；执行时串行写 journal。
+4. 失败时停止依赖步骤，只对已成功动作建立 rollback 计划；rollback 需要新的独立确认。
+5. 将文件元数据/哈希与审批前后复核接入 Trace。
+
+**验收标准**：
+
+- 真实 CLI 路径可运行 dry-run、确认执行和 rollback；
+- 未确认、冲突、覆盖、越权、符号链接/junction 逃逸均无副作用；
+- 中途失败的 journal 与回滚计划可解释、可测试；
+- Demo 可展示“报告交付 + 独立文件整理”而不夸大自动化范围。
+
+**面试重点**：讲清楚为什么文件操作要 dry-run、为什么 rollback 也必须确认、为什么不能允许模型自行扩大目录权限。
+
+### Phase 5：Windows Desktop Computer Use
+
+**目标**：在安全 Runtime 已稳定后，增加一条可重复的 Windows 桌面操作 Demo。
+
+**前提**：Phase 0–4 的核心 Demo、测试和文档全部稳定；这不是绕开前序工作的捷径。
+
+**工作项**：
+
+1. 建立 Windows Desktop Adapter，感知活动窗口、应用/进程、窗口边界和 UI Automation Tree。
+2. 优先用 UIA 元素定位和动作；无法定位时才采用 OCR/视觉 fallback，最后才允许绑定窗口和屏幕状态的坐标动作。
+3. 每一步记录前后 `ScreenState`、控件状态与验证结果；窗口变化后旧坐标失效。
+4. 设置应用白名单、最大步骤数、超时、紧急停止、有限重试和人工接管。
+5. 选择自建或可重复的测试应用作为 Demo，不依赖公司系统、账号登录或不可控第三方站点。
+
+**验收标准**：
+
+- 可以在测试应用完成启动、定位控件、输入、提交低风险动作、验证结果；
+- UIA 不可用时能展示一次受限 fallback；
+- 无变化、窗口变化、循环点击、失败恢复和人工接管均有测试或可复现演示；
+- 所有高风险动作仍需独立确认。
+
+**面试重点**：说明 UIA/DOM/视觉三层优先级，以及为什么 Computer Use 是 fallback 工具，而不是取代结构化接口。
+
+### Phase 6A：必做的评测、Demo、README 与简洁看板
+
+**目标**：把已稳定的工程能力变成可量化、可复现、容易演示的项目成果。
+
+**工作项**：
+
+1. 评估框架：固定无敏感数据集、Fake Adapter 回归、结果保存；统计 Task Success、Citation Validity、风险动作拦截、审批绑定正确率、恢复与 rollback 成功率、P50/P95 延迟等真实指标。
+2. FastAPI + 简洁 Web UI：任务列表、计划/DAG、工具状态、待确认动作、Trace 时间线、staging 预览、产物下载、错误与恢复入口。UI 是观察与审批层，不是聊天壳。
+3. 完善 README、架构图、Demo 资产、真实评估结果、简历候选表述与面试讲解材料。
+
+**验收标准**：
+
+- 指标全部由脚本和保存的评估结果生成，绝不手填成功率；
+- Web UI 能真实反映 Runtime 状态并支持审批/接管；
+- README、代码、测试、Demo、简历描述完全一致。
+
+**面试重点**：用具体 Trace 和评测结果讲清架构取舍，而非堆叠“用了 FastAPI、MCP、多 Agent”等名词。
+
+### Phase 6B：按场景决定的 Memory、Scheduler 与 Multi-Agent
+
+**目标**：只在真实任务证明单 Runtime 不足时，引入高级能力；每项能力都必须带来可测收益而不是新的复杂度。
+
+**工作项**：
+
+1. Memory：分离 Task Memory、Episodic Memory 与经用户同意的 Preference Memory；支持查看、删除、过期和工作区隔离，且 Memory 不能扩大权限。
+2. Scheduler：只管理触发与重试；遇需要确认的动作必须暂停，不能后台自动批准。
+3. Multi-Agent：仅在任务可并行、预算受限、结果 Schema 可汇总且单 Agent 对照评测证明有收益时，才启用受控的 Research、Knowledge、Document 或 Reviewer Agent。
+
+**验收标准**：
+
+- 每项启用前都有明确用户场景、替代方案与新增风险说明；
+- Memory、Scheduler、多 Agent 都不能绕开 Capability、Policy 或 Approval；
+- 对照评测记录质量、耗时和成本变化，未证明收益则不纳入正式 Demo。
+
+## 4. 每阶段的固定交付与汇报格式
+
+每个阶段完成后必须给出以下内容：
+
+1. 用户能力：用户现在能实际运行什么任务；
+2. 改动模块：新增或迁移了哪些关键代码；
+3. 测试与结果：运行命令、通过/失败/跳过和原因；
+4. 评估：新增任务与真实测得指标，若未测则明确写“未测”；
+5. Demo：从输入到交付的实际操作路径；
+6. 已知边界：哪些能力仍未实现或故意不做；
+7. 下一阶段：为什么此时做它，以及不做的替代方案；
+8. 面试复盘：该阶段最需要掌握的 2–3 个设计点。
+
+## 5. 测试与质量底线
+
+- 所有外部环境能力提供 Fake/Mock，确保主测试离线、稳定、无敏感数据。
+- 新增工具必须包含：正常路径、未授权路径、审批拒绝、审批过期/内容变化、超时/失败、Trace 记录等测试。
+- 不使用真实简历、公司资料、Cookie、API Key 或个人下载目录作为仓库 Demo 数据。
+- 不把“计划支持”“内部模块存在”写成“用户入口已完成”。
+- 不编造性能、成功率、模型效果或安全指标；每项对外指标均能定位到脚本和结果文件。
+- 保持 MewCode 基线功能可用；Desktop 模式采用 allowlist 注册，而不是依赖禁用旧工具。
+
+## 6. 计划调整规则
+
+本计划不是机械清单。每个阶段开始前，都根据以下问题决定是否继续、缩小或调整：
+
+1. 上一阶段是否已可运行、可测试、可解释？
+2. 新能力是否直接增强求职 Demo，而不是只增加技术名词？
+3. 是否会引入难以控制的权限、账号或敏感数据风险？
+4. 是否有更简单、确定性更高的替代方案？
+5. 这项工作能否形成可信的代码、测试与面试证据？
+
+如果答案不成立，优先修复现有闭环、补测试和完善展示，而不是继续扩展范围。
+
+## 7. 当前审批请求
+
+建议按 **Phase 0 → Phase 1 → Phase 2** 连续推进：先完成基线复核，再建立统一 Runtime，随后交付“求职研究与材料交付”主 Demo。Phase 3 以后在每个阶段验收完成后再进入下一阶段，避免过早承诺桌面 UIA、Web UI 或多 Agent 的实现时间与效果。
+
+## 8. Phase 7：公共 Benchmark 评测阶段（B0+B1 已完成，B2 待审批）
+
+> **状态更新（2026-07-31）**：OfficeBench 标记为“因官方环境依赖暂缓”。已保留 B0+B1 调研、300 条任务静态统计与 B2A 离线 Adapter；不再进行 Docker、WSL、Hyper-V、OfficeBench 镜像或官方任务运行。此次暂停不影响已完成的 LocalDesk 产品能力，也不将任何 OfficeBench 计划或离线契约测试表述为官方成绩。下一阶段主场景调整为“AI资讯周报PPT”，待新的实施要求确认后再启动。
+
+**目标**：停止扩建零散功能，先用公共任务判断 LocalDesk 作为“可审计的数字实习生 Runtime”是否成立。公共 Benchmark、自建安全评测和具体 Demo 三者并行保留，互不替代。
+
+官方事实基线：
+
+- [OfficeBench](https://github.com/zlwang-cs/OfficeBench) 共 300 条任务：单应用 93、双应用 95、三应用 112；任务 JSON 包含自然语言要求和 Evaluator 配置，官方结果为逐任务 `is_pass` JSONL。应用包括 Calendar、Email、Excel、Word、PDF、OCR、LLM、System 与 Shell。
+- [TheAgentCompany](https://github.com/TheAgentCompany/TheAgentCompany) 当前公开 175 个容器化任务，覆盖行政、HR、财务、项目管理、数据分析和开发工作；官方 Windows 方案要求 Docker、host networking 和 30GB 以上可用空间，因此本阶段只读任务元数据，不直接部署完整环境。
+
+### 8.1 里程碑与修改边界
+
+1. **B0—任务盘点**：固定官方仓库版本/commit，阅读任务格式、操作定义、交互入口、Docker、Evaluator 和结果 Schema；选 5 条 OfficeBench 代表任务，并筛选 5～10 条 TheAgentCompany 相近任务。
+2. **B1—能力映射与 Windows Spike**：形成任务级矩阵，逐项标记 LocalDesk 可复用模块、缺失工具、GUI/API/CLI 路径、官方判分方法、接入难度和值得程度；只读检查本机 Python、Docker 与磁盘条件。
+3. **B2—最薄 Adapter（有条件）**：仅当 B1 证明成本可控时，新增 `evaluation/officebench/` 下的任务加载、LocalDesk 输入/输出桥接和官方 Evaluator 调用；不复制任务答案、不改变 Runtime 安全语义、不为单题硬编码。
+4. **B3—小样本真实运行**：开发集 2 条只用于打通 Adapter，不计入对外成绩；冻结评测集 3 条（单、双、三应用各 1 条）后不再针对其结果修改提示词或规则。该 3 条任务仅属于 **OfficeBench 接入可行性 Pilot**，样本过小，不能作为完整 Benchmark 成绩，也不能直接写入简历。所有运行保存 Trace、产物、官方 Evaluator 输出和成本。
+5. **B4—定位结论**：比较公共任务中的高频能力与现有工具，判断 OfficeBench 是否适合作为主 Benchmark、TheAgentCompany 是否值得后续部署，并给出下一阶段最小通用能力清单。
+
+预计新增/修改范围仅限：
+
+- `evaluation/officebench/`：任务清单、split manifest、薄 Adapter、Evaluator 调用与结果；
+- `evaluation/theagentcompany/`：只读任务筛选与能力映射，不放置大型镜像或备份数据；
+- `docs/benchmark_feasibility.md`：任务矩阵、环境结论、产品定位与不值得实现项；
+- `README.md` 与本计划：只在得到真实结果后更新，不预先宣传支持。
+
+### 8.2 数据、Evaluator、预算与暂停点
+
+- **数据划分**：先按任务所需应用数和产物类型分层，锁定 2 条开发任务与 3 条评测任务，保存 task ID、官方 commit 和文件哈希。评测任务只在 Adapter 接口冻结后运行；失败也保留，不替换“更容易”的任务。
+- **评测后修改纪律**：正式评测集运行后，不得根据任务语义失败修改 Prompt、Policy、策略或业务规则。若发现坐标转换、Adapter 参数映射、路径处理或 Evaluator 调用等机械性 Bug，可以修复，但必须记录原因、更新实验版本，并将 3 条评测任务全部从初始状态重新运行；不得只重跑失败任务。
+- **成功判定**：优先原样调用 OfficeBench 官方确定性 Evaluator（文件存在/包含或不包含、精确匹配、Excel 单元格值与比较、日历冲突等）；主指标为官方通过数/3，同时记录分步完成率、工具步数、人工接管、延迟、API 调用与成本。LLM-as-Judge 不作为唯一或主判定。
+- **调用与成本上限**：B0/B1 不调用模型；若进入 B2/B3，2 条开发任务每条最多 20 个 Agent step，3 条评测任务每条最多 30 个 step，总模型调用上限 130 次，API 支出上限暂定 10 美元，超过任一上限先暂停。
+- **环境与磁盘**：B0+B1 实测当前命令行 Python 是 3.11.9，未发现 Docker；OfficeBench 官方建议 Python 3.10。D 盘可用 127.23 GB。若必须安装 Docker Desktop、创建独立 Python 3.10 环境或拉取大镜像，统一放在 D 盘，并在下载前报告官方/实测体积。TheAgentCompany 的 30GB+ 环境本阶段明确不安装。
+- **最大风险**：① OfficeBench Docker/依赖在 Windows 上不兼容；② OfficeBench 的模拟应用操作与 LocalDesk 的 Windows/Office 工具语义差距过大，适配会退化为重写 Runtime；③ 公开任务导致无意中过拟合或为分数硬编码。
+- **第一个汇报节点**：完成 B0+B1 后立即暂停，提交 5 条 OfficeBench 与 5～10 条 TheAgentCompany 的能力映射、Windows 可行性、预计镜像体积和是否值得进入 B2。未获得再次确认前，不安装 Docker、不拉取大型镜像、不运行大规模实验。
+
+### 8.3 B0+B1 实际结果（2026-07-23）
+
+- 已完成官方仓库版本冻结、任务/Evaluator/交互入口阅读、5 条 OfficeBench 任务 split 与 SHA-256 固定、8 条 TheAgentCompany 任务筛选。
+- OfficeBench 官方 commit 为 `b978b808667c32b52ce19a67ce1def1de9ae02b7`；TheAgentCompany 官方 commit 为 `98b68ef82a47690c316f42fddb05baafaab56851`。
+- 当前环境不能直接运行 OfficeBench 官方容器链：Docker 命令未发现；官方未公布镜像体积，根据 Dockerfile 依赖暂估 2–5 GB，尚未下载或实测。
+- 详细能力矩阵、环境结论、产品定位和下一阶段最小范围见 [`benchmark_feasibility.md`](benchmark_feasibility.md)。
+- 当前按约定暂停在 B0+B1：B2 Adapter、Docker 安装、镜像下载和官方任务运行均未开始。
+
+### 8.4 B2A 离线 Adapter 基础结果（2026-07-23）
+
+- 已对固定 commit 下全部 300 条任务完成静态目录分析，生成逐任务 JSON/CSV 和 Markdown；单/双/三应用任务数再次校验为 93/95/112。
+- 数据显示 Excel/CSV 输入与输出合计出现 220 次，DOCX/PDF 195 次，EML 83 次；下一项通用产品能力仍优先考虑 Excel/CSV，但 B2A 未实现任何新产品工具。
+- 已为 Dev `1-16/0` 建立 pinned commit/hash 校验、隔离目录、字段转换、Runtime bridge Protocol、Evaluator 探测和无副作用 dry-run。
+- 真实固定快照 dry-run 明确返回 `docker_command_not_found` 与 `official_testbed_inputs_not_materialized`；没有伪造官方 Evaluator 运行。
+- 新增 Adapter 契约测试 10 条；连同 Desktop 核心回归共 45 条通过。
+- 当前暂停在 B2A：冻结 Eval 未运行，Docker/镜像未安装，B2B 等待审批。详细证据见 [`phase7_b2a_offline_adapter.md`](phase7_b2a_offline_adapter.md)。
+
+### 8.5 Final Sprint 1：Excel/CSV 与 B2B 环境检查（2026-07-27）
+
+- 已实现并注册通用 Excel/CSV 结构化工具：读取、表头/行列/单元格检查、筛选、稳定排序、去重、列更新、新文件 staging、输入/输出哈希复核、确定性验证和确认交付。
+- 新增 8 条 Excel/CSV 直接测试；连同核心 Runtime、DOCX、求职材料和 OfficeBench Adapter 回归共 53 条通过。完整仓库回归为 615 passed、2 skipped，另有 7 个与本 Sprint 无关的既有失败未处理。
+- B2B 环境检查确认已有 Ubuntu WSL2 未修改，但 Windows 宿主计算服务返回 `HCS_E_SERVICE_NOT_AVAILABLE`。固件虚拟化已启用，D 盘空间足够；修复 Windows 功能通常需要管理员权限和重启，因此按规则暂停 Docker 安装与官方 Dev 运行。
+- 当前下一步是用户完成重启后的只读 WSL 验证，再继续 Docker、官方原生链路和 Dev `1-16/0`；若环境无法及时恢复，先推进 Sprint 2 办公产物能力。
+
+### 8.6 Final Sprint 2：DOCX/PDF 正式交付与本地邮件草稿（2026-07-27）
+
+- 已新增 DOCX 正文、基础 Heading 和表格读取，并将 DOCX 段落/表格行纳入授权本地检索与可定位引用。
+- 已新增正式 PDF 交付：必须经过 LibreOffice 真实转换、PDF 重开/页数/文本校验和逐页 PNG 渲染检查，且来源 DOCX、staging PDF 或目标路径变化均会阻断确认交付。
+- 已新增标准 `.eml` 草稿：收件人、主题、正文与附件均会确定性复核；它可作为新建本地文件自动交付，但没有 SMTP、邮箱登录、Outlook 自动化或真实发送能力。
+- 新增 Registry 工具 `document.inspect_docx`、`document.stage_pdf`、`document.commit_pdf`、`mail.stage_eml`、`mail.commit_eml`；PDF 仍需确认，EML 自动交付仅限新的本地草稿文件。
+- 相关核心回归为 58 passed、1 skipped；完整仓库测试为 615 passed、3 skipped、12 个历史/环境相关失败，未在本阶段处理。另以本机 LibreOffice 对合成 DOCX 完成 1 页真实 PDF 转换与逐页 PNG 人工检查。详细记录见 `docs/phase7_sprint2_office_artifacts.md`。
+- Docker/WSL2 的 `HCS_E_SERVICE_NOT_AVAILABLE` 阻塞未改变：本阶段没有安装 Docker、下载镜像或运行 OfficeBench 官方 Evaluator。重启后的 WSL 验证仍是进入 B2B/Dev `1-16/0` 的前置条件。

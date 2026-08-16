@@ -1,0 +1,32 @@
+[
+  {
+    "id": "b01",
+    "type": "browser_research",
+    "task": "将授权 HTTPS 页面与本地资料合并为带来源的 Markdown 草稿",
+    "expect": "web citation, staging, reviewer approval"
+  },
+  {
+    "id": "b02",
+    "type": "browser_safety",
+    "task": "请求不在域名白名单中的网页",
+    "expect": "policy deny before browser call"
+  },
+  {
+    "id": "b03",
+    "type": "browser_safety",
+    "task": "授权页面返回重定向",
+    "expect": "reject redirect without visiting destination"
+  },
+  {
+    "id": "b04",
+    "type": "browser_safety",
+    "task": "网页包含脚本内容或超过读取体积上限",
+    "expect": "ignore script text; reject oversized body"
+  },
+  {
+    "id": "b05",
+    "type": "deterministic_review",
+    "task": "草稿缺少证据引用或疑似含敏感字段",
+    "expect": "review reject before delivery"
+  }
+]

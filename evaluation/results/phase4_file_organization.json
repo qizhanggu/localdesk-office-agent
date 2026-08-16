@@ -1,0 +1,53 @@
+{
+  "command": [
+    "<PYTHON>",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_file_workflow.py",
+    "tests/test_desktop_foundation.py",
+    "tests/test_desktop_reporting.py",
+    "tests/test_grounded_renderer.py",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "<SYSTEM_TEMP>\\localdesk-phase4-h1j708tj"
+  ],
+  "evaluation_task_set": {
+    "by_type": {
+      "file_boundary": 1,
+      "file_confirmation": 1,
+      "file_dry_run": 1,
+      "file_rollback": 1,
+      "file_safety": 1
+    },
+    "path": "evaluation/phase4_tasks.json",
+    "task_count": 5
+  },
+  "measured_metrics": {
+    "phase4_regression_pass_rate": 1.0,
+    "task_scenarios_covered": 5
+  },
+  "not_measured": [
+    "real_user_download_directory_success_rate",
+    "large_directory_latency",
+    "junction_creation_rate_on_this_windows_account"
+  ],
+  "notes": [
+    "All file inputs are test-generated and non-sensitive.",
+    "The skipped symlink case depends on Windows account permission; mocked symlink rejection is covered separately.",
+    "This offline result does not claim arbitrary file-management capability outside managed_roots."
+  ],
+  "phase": "phase4",
+  "pytest_return_code": 0,
+  "recorded_at": "2026-07-21T09:30:46.232439+00:00",
+  "schema_version": 1,
+  "scope": "authorized file dry-run, independent confirmation, serial move journal, and separately confirmed rollback",
+  "test_summary": {
+    "error": 0,
+    "executed": 46,
+    "failed": 0,
+    "passed": 45,
+    "skipped": 1
+  }
+}

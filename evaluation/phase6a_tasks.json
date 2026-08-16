@@ -1,0 +1,10 @@
+[
+  {"id": "P6A-01", "type": "risk_tiering", "goal": "New local artifact can auto-deliver without overwriting"},
+  {"id": "P6A-02", "type": "reviewer_warning", "goal": "Ordinary content issues warn while sensitive fields block"},
+  {"id": "P6A-03", "type": "web_evidence", "goal": "Trace URL, access time, content hash, excerpt and discovered links"},
+  {"id": "P6A-04", "type": "job_materials", "goal": "Ground a targeted packet in one JD and local evidence"},
+  {"id": "P6A-05", "type": "docx_quality", "goal": "Require structure and render checks before DOCX delivery"},
+  {"id": "P6A-06", "type": "feedback_revision", "goal": "Apply explicit user feedback to a new version"},
+  {"id": "P6A-07", "type": "task_board", "goal": "Render a read-only board from real task Trace"},
+  {"id": "P6A-08", "type": "regression", "goal": "Retain Phase 0 through Phase 5 controlled workflows"}
+]

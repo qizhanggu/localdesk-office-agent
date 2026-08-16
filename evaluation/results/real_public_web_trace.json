@@ -1,0 +1,18 @@
+{
+  "artifact": "<WORKSPACE>\\.localdesk\\real-web-28ce4c6b\\output\\real-web-evidence.md",
+  "note": "This is a real public HTTPS read; no login, form submission, cookie reuse, or external write was performed.",
+  "recorded_at": "2026-07-22T07:48:05.419610+00:00",
+  "schema_version": 1,
+  "status": "succeeded",
+  "task_id": "4d16d0cb-f8e2-4814-aee6-e7da953af83e",
+  "trace_dir": "<WORKSPACE>\\.localdesk\\real-web-28ce4c6b\\tasks\\4d16d0cb-f8e2-4814-aee6-e7da953af83e",
+  "web_evidence": {
+    "accessed_at": "2026-07-22T07:48:05.198612+00:00",
+    "citation_excerpt": "Example Domain Example Domain This domain is for use in documentation examples without needing permission. Avoid use in operations. Learn more",
+    "content_hash": "d003f90bc10db991b76e6fb480123cfce2cbb2b2784abe687fccccfa7ecacad8",
+    "discovered_links": [
+      "https://iana.org/domains/example"
+    ],
+    "url": "https://example.org/"
+  }
+}

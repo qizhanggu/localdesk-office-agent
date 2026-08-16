@@ -1,0 +1,1041 @@
+{
+  "version": "localdesk-recorded-showcase-v1",
+  "recorded_at": "2026-08-10T08:59:17.638772+00:00",
+  "truth_label": "recorded_real_trace",
+  "runs": [
+    {
+      "label": "AI 资讯周报",
+      "mode": "recorded_real_trace",
+      "source_note": "来自已完成真实 Demo 的 Task Trace；用于稳定回放，不代表当前正在执行。",
+      "known_limitations": [
+        "三路 Research 是确定性并发职责模块，不是三个 LLM Agent。",
+        "本次正文页返回 403，证据来自官方 RSS 条目并明确标记为 fallback。",
+        "该历史 Trace 的汇总 source_mode 口径问题已在后续代码修正，原始记录保持不篡改。"
+      ],
+      "task": {
+        "actions": [
+          {
+            "action_id": "weekly-commit-pptx",
+            "args": {
+              "destination": "<recorded-run-1>\\deliveries\\本周AI资讯汇报_2026-08-10.pptx"
+            },
+            "kind": "write",
+            "preview": {
+              "artifact": {
+                "final_path": "<recorded-run-1>\\deliveries\\本周AI资讯汇报_2026-08-10.pptx",
+                "kind": "pptx",
+                "sha256": "4863c9bc00ed7248dbdd75036550a5dded9ec953f9abe596a50c14a82cb0ffd0",
+                "staged_path": "<recorded-run-1>\\tasks\\32c52de1-bee6-496e-a46b-e0eac4527c50\\staging\\本周AI资讯汇报.pptx",
+                "summary": "交付已审核的 AI 资讯周报 PPTX"
+              }
+            },
+            "requires_confirmation": true,
+            "skill": "document.commit_pptx",
+            "status": "pending",
+            "summary": "交付已审核的 AI 资讯周报 PPTX"
+          },
+          {
+            "action_id": "weekly-commit-pdf",
+            "args": {
+              "destination": "<recorded-run-1>\\deliveries\\本周AI资讯汇报_2026-08-10.pdf"
+            },
+            "kind": "write",
+            "preview": {
+              "artifact": {
+                "final_path": "<recorded-run-1>\\deliveries\\本周AI资讯汇报_2026-08-10.pdf",
+                "kind": "pdf",
+                "sha256": "cdffc2e61286d915a9ed9ef1935e53d2d14c8026f51598842be83764bd78630b",
+                "staged_path": "<recorded-run-1>\\tasks\\32c52de1-bee6-496e-a46b-e0eac4527c50\\staging\\本周AI资讯汇报.pdf",
+                "summary": "交付已审核的 AI 资讯周报 PDF"
+              }
+            },
+            "requires_confirmation": true,
+            "skill": "document.commit_pdf",
+            "status": "pending",
+            "summary": "交付已审核的 AI 资讯周报 PDF"
+          },
+          {
+            "action_id": "weekly-commit-eml",
+            "args": {
+              "destination": "<recorded-run-1>\\deliveries\\AI资讯周报_2026-08-10_未发送草稿.eml"
+            },
+            "kind": "write",
+            "preview": {
+              "artifact": {
+                "final_path": "<recorded-run-1>\\deliveries\\AI资讯周报_2026-08-10_未发送草稿.eml",
+                "kind": "eml",
+                "sha256": "b9a6fa6ae256a988bae426d95ed525f3b4270a8e7a2e046ea7fb49a00d6bb466",
+                "staged_path": "<recorded-run-1>\\tasks\\32c52de1-bee6-496e-a46b-e0eac4527c50\\staging\\AI资讯周报_未发送草稿.eml",
+                "summary": "交付明确标记为未发送的邮件草稿"
+              }
+            },
+            "requires_confirmation": true,
+            "skill": "mail.commit_eml",
+            "status": "pending",
+            "summary": "交付明确标记为未发送的邮件草稿"
+          }
+        ],
+        "artifacts": [
+          {
+            "final_path": "<recorded-run-1>\\deliveries\\本周AI资讯汇报_2026-08-10.pptx",
+            "kind": "pptx",
+            "sha256": "4863c9bc00ed7248dbdd75036550a5dded9ec953f9abe596a50c14a82cb0ffd0",
+            "staged_path": "<recorded-run-1>\\tasks\\32c52de1-bee6-496e-a46b-e0eac4527c50\\staging\\本周AI资讯汇报.pptx",
+            "summary": "交付已审核的 AI 资讯周报 PPTX"
+          },
+          {
+            "final_path": "<recorded-run-1>\\deliveries\\本周AI资讯汇报_2026-08-10.pdf",
+            "kind": "pdf",
+            "sha256": "cdffc2e61286d915a9ed9ef1935e53d2d14c8026f51598842be83764bd78630b",
+            "staged_path": "<recorded-run-1>\\tasks\\32c52de1-bee6-496e-a46b-e0eac4527c50\\staging\\本周AI资讯汇报.pdf",
+            "summary": "交付已审核的 AI 资讯周报 PDF"
+          },
+          {
+            "final_path": "<recorded-run-1>\\deliveries\\AI资讯周报_2026-08-10_未发送草稿.eml",
+            "kind": "eml",
+            "sha256": "b9a6fa6ae256a988bae426d95ed525f3b4270a8e7a2e046ea7fb49a00d6bb466",
+            "staged_path": "<recorded-run-1>\\tasks\\32c52de1-bee6-496e-a46b-e0eac4527c50\\staging\\AI资讯周报_未发送草稿.eml",
+            "summary": "交付明确标记为未发送的邮件草稿"
+          }
+        ],
+        "created_at": "2026-08-10T06:55:56.507738+00:00",
+        "error": null,
+        "plan": "生成并审核周报后，人工确认一次，再交付 PPTX、PDF 和未发送邮件草稿。",
+        "status": "succeeded",
+        "task_id": "32c52de1-bee6-496e-a46b-e0eac4527c50",
+        "updated_at": "2026-08-10T06:57:06.981596+00:00",
+        "user_query": "创建本周AI资讯汇报（2026-07-20 至 2026-08-10）"
+      },
+      "events": [
+        {
+          "event_type": "task_created",
+          "payload": {
+            "user_query": "创建本周AI资讯汇报（2026-07-20 至 2026-08-10）"
+          },
+          "sequence": 1,
+          "timestamp": "2026-08-10T06:55:56.510731+00:00"
+        },
+        {
+          "event_type": "weekly_live_research_completed",
+          "payload": {
+            "article_read_count": 3,
+            "feed_read_count": 3,
+            "plan_version": "weekly-official-sources-v3",
+            "source_mode": "official_rss_plus_live_html"
+          },
+          "sequence": 2,
+          "timestamp": "2026-08-10T06:56:06.085842+00:00"
+        },
+        {
+          "event_type": "weekly_briefing_started",
+          "payload": {
+            "end": "2026-08-10",
+            "research_agents": [
+              "model",
+              "agent_product",
+              "industry"
+            ],
+            "start": "2026-07-20"
+          },
+          "sequence": 3,
+          "timestamp": "2026-08-10T06:56:06.086843+00:00"
+        },
+        {
+          "event_type": "research_agent_finished",
+          "payload": {
+            "agent": "model",
+            "card_count": 1,
+            "source_reads": [
+              {
+                "accessed_at": "2026-08-10T06:55:59.402886+00:00",
+                "content_hash": "ca28c4102a138e9317d2eea7a95e5137a885f16544d5f3eae9d34b742d709990",
+                "evidence_supported": true,
+                "excerpt": "hatGPT—and expanding access to GPT-5.6 Luna for free users. ChatGPT introduces improved GPT-5.6 Sol with better accuracy and consistency, plus expanded access for free users and unlimited everyday chats with GPT-5.6 Luna.",
+                "source_mode": "official_rss_item_fallback",
+                "title": "Improving GPT‑5.6 Sol in ChatGPT—and expanding access to GPT-5.6 Luna for free users",
+                "url": "https://openai.com/news/rss.xml"
+              }
+            ]
+          },
+          "sequence": 4,
+          "timestamp": "2026-08-10T06:56:06.091385+00:00"
+        },
+        {
+          "event_type": "research_agent_finished",
+          "payload": {
+            "agent": "agent_product",
+            "card_count": 1,
+            "source_reads": [
+              {
+                "accessed_at": "2026-08-10T06:55:59.402886+00:00",
+                "content_hash": "ca28c4102a138e9317d2eea7a95e5137a885f16544d5f3eae9d34b742d709990",
+                "evidence_supported": true,
+                "excerpt": "New ways to learn and teach with ChatGPT Work and Codex. Explore new education plugins for ChatGPT Work and Codex that help K–12 teachers, college educators, and students learn, teach, research, and build.",
+                "source_mode": "official_rss_item_fallback",
+                "title": "New ways to learn and teach with ChatGPT Work and Codex",
+                "url": "https://openai.com/news/rss.xml"
+              }
+            ]
+          },
+          "sequence": 5,
+          "timestamp": "2026-08-10T06:56:06.092365+00:00"
+        },
+        {
+          "event_type": "research_agent_finished",
+          "payload": {
+            "agent": "industry",
+            "card_count": 1,
+            "source_reads": [
+              {
+                "accessed_at": "2026-08-10T06:55:59.402886+00:00",
+                "content_hash": "ca28c4102a138e9317d2eea7a95e5137a885f16544d5f3eae9d34b742d709990",
+                "evidence_supported": true,
+                "excerpt": "How HSP GRUPPE builds AI capabilities for tax advisory. Discover how HSP GRUPPE uses ChatGPT Enterprise to boost productivity, improve work quality, and create more capacity for tax advisory and client service.",
+                "source_mode": "official_rss_item_fallback",
+                "title": "How HSP GRUPPE builds AI capabilities for tax advisory",
+                "url": "https://openai.com/news/rss.xml"
+              }
+            ]
+          },
+          "sequence": 6,
+          "timestamp": "2026-08-10T06:56:06.093374+00:00"
+        },
+        {
+          "event_type": "editor_finished",
+          "payload": {
+            "input_cards": 3,
+            "memory_seen": 0,
+            "selected_cards": 3
+          },
+          "sequence": 7,
+          "timestamp": "2026-08-10T06:56:06.094364+00:00"
+        },
+        {
+          "event_type": "weekly_briefing_reviewed",
+          "payload": {
+            "email_draft": "<recorded-run-1>\\tasks\\32c52de1-bee6-496e-a46b-e0eac4527c50\\staging\\AI资讯周报_未发送草稿.eml",
+            "pdf": "<recorded-run-1>\\tasks\\32c52de1-bee6-496e-a46b-e0eac4527c50\\staging\\本周AI资讯汇报.pdf",
+            "pdf_exporter": "powerpoint_com",
+            "pptx": "<recorded-run-1>\\tasks\\32c52de1-bee6-496e-a46b-e0eac4527c50\\staging\\本周AI资讯汇报.pptx",
+            "render_dir": "<recorded-run-1>\\tasks\\32c52de1-bee6-496e-a46b-e0eac4527c50\\staging\\ppt_render",
+            "review": {
+              "approved": true,
+              "blockers": [],
+              "findings": [
+                "时间范围、来源、去重、PPTX/PDF 文件检查通过"
+              ]
+            }
+          },
+          "sequence": 8,
+          "timestamp": "2026-08-10T06:56:54.238792+00:00"
+        },
+        {
+          "event_type": "status_changed",
+          "payload": {
+            "from": "draft",
+            "to": "planned"
+          },
+          "sequence": 9,
+          "timestamp": "2026-08-10T06:56:54.255790+00:00"
+        },
+        {
+          "event_type": "plan_created",
+          "payload": {
+            "decisions": [
+              {
+                "action_id": "weekly-commit-pptx",
+                "effect": "ask",
+                "reason": "写入产物需要确认",
+                "requires_confirmation": true
+              },
+              {
+                "action_id": "weekly-commit-pdf",
+                "effect": "ask",
+                "reason": "写入产物需要确认",
+                "requires_confirmation": true
+              },
+              {
+                "action_id": "weekly-commit-eml",
+                "effect": "ask",
+                "reason": "写入产物需要确认",
+                "requires_confirmation": true
+              }
+            ],
+            "plan": "生成并审核周报后，人工确认一次，再交付 PPTX、PDF 和未发送邮件草稿。"
+          },
+          "sequence": 10,
+          "timestamp": "2026-08-10T06:56:54.265788+00:00"
+        },
+        {
+          "event_type": "status_changed",
+          "payload": {
+            "from": "planned",
+            "to": "awaiting_confirmation"
+          },
+          "sequence": 11,
+          "timestamp": "2026-08-10T06:56:54.268788+00:00"
+        },
+        {
+          "event_type": "confirmation",
+          "payload": {
+            "approved": true
+          },
+          "sequence": 12,
+          "timestamp": "2026-08-10T06:57:06.848547+00:00"
+        },
+        {
+          "event_type": "status_changed",
+          "payload": {
+            "from": "awaiting_confirmation",
+            "to": "executing"
+          },
+          "sequence": 13,
+          "timestamp": "2026-08-10T06:57:06.851544+00:00"
+        },
+        {
+          "event_type": "artifact_bundle_preflight_passed",
+          "payload": {
+            "artifact_count": 3,
+            "artifacts": [
+              "<recorded-run-1>\\deliveries\\本周AI资讯汇报_2026-08-10.pptx",
+              "<recorded-run-1>\\deliveries\\本周AI资讯汇报_2026-08-10.pdf",
+              "<recorded-run-1>\\deliveries\\AI资讯周报_2026-08-10_未发送草稿.eml"
+            ]
+          },
+          "sequence": 14,
+          "timestamp": "2026-08-10T06:57:06.897548+00:00"
+        },
+        {
+          "event_type": "tool_requested",
+          "payload": {
+            "action_id": "weekly-commit-pptx",
+            "decision": {
+              "effect": "ask",
+              "reason": "写入产物需要确认",
+              "requires_confirmation": true
+            },
+            "params": {
+              "destination": "<recorded-run-1>\\deliveries\\本周AI资讯汇报_2026-08-10.pptx"
+            },
+            "risk_level": "R3",
+            "tool": "document.commit_pptx"
+          },
+          "sequence": 15,
+          "timestamp": "2026-08-10T06:57:06.901082+00:00"
+        },
+        {
+          "event_type": "tool_policy_decided",
+          "payload": {
+            "action_id": "weekly-commit-pptx",
+            "decision": {
+              "effect": "ask",
+              "reason": "写入产物需要确认",
+              "requires_confirmation": true
+            },
+            "params": {
+              "destination": "<recorded-run-1>\\deliveries\\本周AI资讯汇报_2026-08-10.pptx"
+            },
+            "risk_level": "R3",
+            "tool": "document.commit_pptx"
+          },
+          "sequence": 16,
+          "timestamp": "2026-08-10T06:57:06.902079+00:00"
+        },
+        {
+          "event_type": "tool_completed",
+          "payload": {
+            "action_id": "weekly-commit-pptx",
+            "tool": "document.commit_pptx"
+          },
+          "sequence": 17,
+          "timestamp": "2026-08-10T06:57:06.908084+00:00"
+        },
+        {
+          "event_type": "tool_verified",
+          "payload": {
+            "action_id": "weekly-commit-pptx",
+            "tool": "document.commit_pptx"
+          },
+          "sequence": 18,
+          "timestamp": "2026-08-10T06:57:06.913079+00:00"
+        },
+        {
+          "event_type": "artifact_committed",
+          "payload": {
+            "final_path": "<recorded-run-1>\\deliveries\\本周AI资讯汇报_2026-08-10.pptx",
+            "kind": "pptx",
+            "sha256": "4863c9bc00ed7248dbdd75036550a5dded9ec953f9abe596a50c14a82cb0ffd0",
+            "staged_path": "<recorded-run-1>\\tasks\\32c52de1-bee6-496e-a46b-e0eac4527c50\\staging\\本周AI资讯汇报.pptx",
+            "summary": "交付已审核的 AI 资讯周报 PPTX"
+          },
+          "sequence": 19,
+          "timestamp": "2026-08-10T06:57:06.915077+00:00"
+        },
+        {
+          "event_type": "tool_requested",
+          "payload": {
+            "action_id": "weekly-commit-pdf",
+            "decision": {
+              "effect": "ask",
+              "reason": "写入产物需要确认",
+              "requires_confirmation": true
+            },
+            "params": {
+              "destination": "<recorded-run-1>\\deliveries\\本周AI资讯汇报_2026-08-10.pdf"
+            },
+            "risk_level": "R3",
+            "tool": "document.commit_pdf"
+          },
+          "sequence": 20,
+          "timestamp": "2026-08-10T06:57:06.918080+00:00"
+        },
+        {
+          "event_type": "tool_policy_decided",
+          "payload": {
+            "action_id": "weekly-commit-pdf",
+            "decision": {
+              "effect": "ask",
+              "reason": "写入产物需要确认",
+              "requires_confirmation": true
+            },
+            "params": {
+              "destination": "<recorded-run-1>\\deliveries\\本周AI资讯汇报_2026-08-10.pdf"
+            },
+            "risk_level": "R3",
+            "tool": "document.commit_pdf"
+          },
+          "sequence": 21,
+          "timestamp": "2026-08-10T06:57:06.919080+00:00"
+        },
+        {
+          "event_type": "tool_completed",
+          "payload": {
+            "action_id": "weekly-commit-pdf",
+            "tool": "document.commit_pdf"
+          },
+          "sequence": 22,
+          "timestamp": "2026-08-10T06:57:06.929599+00:00"
+        },
+        {
+          "event_type": "tool_verified",
+          "payload": {
+            "action_id": "weekly-commit-pdf",
+            "tool": "document.commit_pdf"
+          },
+          "sequence": 23,
+          "timestamp": "2026-08-10T06:57:06.938604+00:00"
+        },
+        {
+          "event_type": "artifact_committed",
+          "payload": {
+            "final_path": "<recorded-run-1>\\deliveries\\本周AI资讯汇报_2026-08-10.pdf",
+            "kind": "pdf",
+            "sha256": "cdffc2e61286d915a9ed9ef1935e53d2d14c8026f51598842be83764bd78630b",
+            "staged_path": "<recorded-run-1>\\tasks\\32c52de1-bee6-496e-a46b-e0eac4527c50\\staging\\本周AI资讯汇报.pdf",
+            "summary": "交付已审核的 AI 资讯周报 PDF"
+          },
+          "sequence": 24,
+          "timestamp": "2026-08-10T06:57:06.942599+00:00"
+        },
+        {
+          "event_type": "tool_requested",
+          "payload": {
+            "action_id": "weekly-commit-eml",
+            "decision": {
+              "effect": "ask",
+              "reason": "写入产物需要确认",
+              "requires_confirmation": true
+            },
+            "params": {
+              "auto_deliver": false,
+              "destination": "<recorded-run-1>\\deliveries\\AI资讯周报_2026-08-10_未发送草稿.eml"
+            },
+            "risk_level": "R2",
+            "tool": "mail.commit_eml"
+          },
+          "sequence": 25,
+          "timestamp": "2026-08-10T06:57:06.945597+00:00"
+        },
+        {
+          "event_type": "tool_policy_decided",
+          "payload": {
+            "action_id": "weekly-commit-eml",
+            "decision": {
+              "effect": "ask",
+              "reason": "写入产物需要确认",
+              "requires_confirmation": true
+            },
+            "params": {
+              "auto_deliver": false,
+              "destination": "<recorded-run-1>\\deliveries\\AI资讯周报_2026-08-10_未发送草稿.eml"
+            },
+            "risk_level": "R2",
+            "tool": "mail.commit_eml"
+          },
+          "sequence": 26,
+          "timestamp": "2026-08-10T06:57:06.946597+00:00"
+        },
+        {
+          "event_type": "tool_completed",
+          "payload": {
+            "action_id": "weekly-commit-eml",
+            "tool": "mail.commit_eml"
+          },
+          "sequence": 27,
+          "timestamp": "2026-08-10T06:57:06.952596+00:00"
+        },
+        {
+          "event_type": "tool_verified",
+          "payload": {
+            "action_id": "weekly-commit-eml",
+            "tool": "mail.commit_eml"
+          },
+          "sequence": 28,
+          "timestamp": "2026-08-10T06:57:06.978612+00:00"
+        },
+        {
+          "event_type": "artifact_committed",
+          "payload": {
+            "final_path": "<recorded-run-1>\\deliveries\\AI资讯周报_2026-08-10_未发送草稿.eml",
+            "kind": "eml",
+            "sha256": "b9a6fa6ae256a988bae426d95ed525f3b4270a8e7a2e046ea7fb49a00d6bb466",
+            "staged_path": "<recorded-run-1>\\tasks\\32c52de1-bee6-496e-a46b-e0eac4527c50\\staging\\AI资讯周报_未发送草稿.eml",
+            "summary": "交付明确标记为未发送的邮件草稿"
+          },
+          "sequence": 29,
+          "timestamp": "2026-08-10T06:57:06.981596+00:00"
+        },
+        {
+          "event_type": "status_changed",
+          "payload": {
+            "from": "executing",
+            "to": "succeeded"
+          },
+          "sequence": 30,
+          "timestamp": "2026-08-10T06:57:06.983598+00:00"
+        }
+      ]
+    },
+    {
+      "label": "报销核对",
+      "mode": "recorded_real_trace",
+      "source_note": "来自已完成真实 Demo 的 Task Trace；用于稳定回放，不代表当前正在执行。",
+      "known_limitations": [
+        "本次演示使用无敏感信息的合成支付流水、发票和规则文档。",
+        "规则解析仅覆盖 max_payment_amount 与 amount_tolerance 两个确定性字段。"
+      ],
+      "task": {
+        "actions": [
+          {
+            "action_id": "reimbursement-commit-xlsx",
+            "args": {
+              "destination": "<recorded-run-2>\\deliveries\\flagged_payments.xlsx"
+            },
+            "kind": "write",
+            "preview": {
+              "artifact": {
+                "final_path": "<recorded-run-2>\\deliveries\\flagged_payments.xlsx",
+                "kind": "xlsx",
+                "sha256": "5ff5e3e52058fb154956c046ab52173470daab612f6a2e206590dbec5db24494",
+                "staged_path": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\flagged_payments.xlsx",
+                "summary": "交付报销异常项工作簿"
+              }
+            },
+            "requires_confirmation": true,
+            "skill": "spreadsheet.commit",
+            "status": "pending",
+            "summary": "交付报销异常项工作簿"
+          },
+          {
+            "action_id": "reimbursement-commit-pdf",
+            "args": {
+              "destination": "<recorded-run-2>\\deliveries\\reimbursement_summary.pdf"
+            },
+            "kind": "write",
+            "preview": {
+              "artifact": {
+                "final_path": "<recorded-run-2>\\deliveries\\reimbursement_summary.pdf",
+                "kind": "pdf",
+                "sha256": "8e34a59c1cfcb76ea327cb2e2020badb0b012937b14f42c9f3901977fd385ab8",
+                "staged_path": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\reimbursement_summary.pdf",
+                "summary": "交付经过渲染检查的报销核对摘要 PDF"
+              }
+            },
+            "requires_confirmation": true,
+            "skill": "document.commit_pdf",
+            "status": "pending",
+            "summary": "交付经过渲染检查的报销核对摘要 PDF"
+          },
+          {
+            "action_id": "reimbursement-commit-eml",
+            "args": {
+              "destination": "<recorded-run-2>\\deliveries\\reimbursement_review.eml"
+            },
+            "kind": "write",
+            "preview": {
+              "artifact": {
+                "final_path": "<recorded-run-2>\\deliveries\\reimbursement_review.eml",
+                "kind": "eml",
+                "sha256": "60420d9ab336568a0dffadfa70484dc14a8de7c97598cdfbce459dc121bf5518",
+                "staged_path": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\reimbursement_review.eml",
+                "summary": "交付明确标记为未发送的报销复核邮件草稿"
+              }
+            },
+            "requires_confirmation": true,
+            "skill": "mail.commit_eml",
+            "status": "pending",
+            "summary": "交付明确标记为未发送的报销复核邮件草稿"
+          }
+        ],
+        "artifacts": [
+          {
+            "final_path": "<recorded-run-2>\\deliveries\\flagged_payments.xlsx",
+            "kind": "xlsx",
+            "sha256": "5ff5e3e52058fb154956c046ab52173470daab612f6a2e206590dbec5db24494",
+            "staged_path": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\flagged_payments.xlsx",
+            "summary": "交付报销异常项工作簿"
+          },
+          {
+            "final_path": "<recorded-run-2>\\deliveries\\reimbursement_summary.pdf",
+            "kind": "pdf",
+            "sha256": "8e34a59c1cfcb76ea327cb2e2020badb0b012937b14f42c9f3901977fd385ab8",
+            "staged_path": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\reimbursement_summary.pdf",
+            "summary": "交付经过渲染检查的报销核对摘要 PDF"
+          },
+          {
+            "final_path": "<recorded-run-2>\\deliveries\\reimbursement_review.eml",
+            "kind": "eml",
+            "sha256": "60420d9ab336568a0dffadfa70484dc14a8de7c97598cdfbce459dc121bf5518",
+            "staged_path": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\reimbursement_review.eml",
+            "summary": "交付明确标记为未发送的报销复核邮件草稿"
+          }
+        ],
+        "created_at": "2026-08-10T06:57:49.921533+00:00",
+        "error": null,
+        "plan": "读取支付流水、发票和规则文档，生成核对产物；人工确认一次后交付 XLSX、PDF 和未发送邮件草稿。",
+        "status": "succeeded",
+        "task_id": "1fc8c34e-2a03-46f8-ae3e-cf32e3715daf",
+        "updated_at": "2026-08-10T06:58:24.702331+00:00",
+        "user_query": "帮我核对这些报销材料并生成复核文件"
+      },
+      "events": [
+        {
+          "event_type": "task_created",
+          "payload": {
+            "user_query": "帮我核对这些报销材料并生成复核文件"
+          },
+          "sequence": 1,
+          "timestamp": "2026-08-10T06:57:49.926558+00:00"
+        },
+        {
+          "event_type": "main_agent_planned",
+          "payload": {
+            "executable": true,
+            "intent": "reimbursement",
+            "planner": "deterministic_thin_router_v1",
+            "reason": "识别到报销相关词：报销",
+            "steps": [
+              "检查支付流水、发票和规则文档是否齐全",
+              "读取规则并核对支付记录与发票",
+              "生成异常清单、PDF 摘要和未发送邮件草稿",
+              "等待人工确认后正式交付"
+            ],
+            "user_query": "帮我核对这些报销材料并生成复核文件",
+            "workflow": "reimbursement"
+          },
+          "sequence": 2,
+          "timestamp": "2026-08-10T06:57:49.931533+00:00"
+        },
+        {
+          "event_type": "reimbursement_analyzed",
+          "payload": {
+            "applied_rules": {
+              "amount_tolerance": 0.01,
+              "max_payment_amount": 80.0
+            },
+            "findings": [
+              {
+                "amount": 50.0,
+                "detail": "发票号和金额一致",
+                "invoice_no": "INV-001",
+                "payment_id": "PAY-001",
+                "status": "matched"
+              },
+              {
+                "amount": 100.0,
+                "detail": "付款 100.00 超过规则上限 80.00",
+                "invoice_no": "INV-002",
+                "payment_id": "PAY-002",
+                "status": "policy_limit_exceeded"
+              },
+              {
+                "amount": 20.0,
+                "detail": "未找到对应发票号",
+                "invoice_no": "INV-MISSING",
+                "payment_id": "PAY-003",
+                "status": "missing_invoice"
+              }
+            ],
+            "flagged_count": 2,
+            "matched_count": 1,
+            "source_hashes": {
+              "<recorded-run-2>\\sources\\invoice-001.pdf": "88de483ce0a611a0045031ca68a268bb1aa861c01744e2ff04d8b786a2cb18d1",
+              "<recorded-run-2>\\sources\\invoice-002.pdf": "66b066b1a7f006720b16a3c02b61f86458ec7e8ba342d6f6672d5461efa8e403",
+              "<recorded-run-2>\\sources\\payments.xlsx": "051b0c7cdb9a3a9b250da5da44e94dec7cca6ddbd1811c11c270f2fce558c8d6",
+              "<recorded-run-2>\\sources\\rules.docx": "bb2a3712e897d1e3649c5241531630d3000e5efb1e51677041c1872dbaac6544"
+            }
+          },
+          "sequence": 3,
+          "timestamp": "2026-08-10T06:57:50.280869+00:00"
+        },
+        {
+          "event_type": "reimbursement_xlsx_staged",
+          "payload": {
+            "path": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\flagged_payments.xlsx"
+          },
+          "sequence": 4,
+          "timestamp": "2026-08-10T06:57:50.281867+00:00"
+        },
+        {
+          "event_type": "reimbursement_summary_staged",
+          "payload": {
+            "docx": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\reimbursement_summary.docx",
+            "email": {
+              "attachments": [
+                {
+                  "name": "flagged_payments.xlsx",
+                  "path": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\flagged_payments.xlsx",
+                  "sha256": "5ff5e3e52058fb154956c046ab52173470daab612f6a2e206590dbec5db24494"
+                },
+                {
+                  "name": "reimbursement_summary.pdf",
+                  "path": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\reimbursement_summary.pdf",
+                  "sha256": "8e34a59c1cfcb76ea327cb2e2020badb0b012937b14f42c9f3901977fd385ab8"
+                }
+              ],
+              "final_path": "<recorded-run-2>\\deliveries\\reimbursement_review.eml",
+              "recipients": [
+                "finance-review@example.com"
+              ],
+              "sha256": "60420d9ab336568a0dffadfa70484dc14a8de7c97598cdfbce459dc121bf5518",
+              "staged_path": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\reimbursement_review.eml",
+              "subject": "Reimbursement reconciliation draft",
+              "summary": "仅本地保存、未发送的标准 .eml 邮件草稿",
+              "validation": {
+                "approved": true,
+                "attachment_count": 2,
+                "findings": [],
+                "recipient_count": 1
+              }
+            },
+            "pdf": {
+              "final_path": "<recorded-run-2>\\deliveries\\reimbursement_summary.pdf",
+              "render_image_paths": [
+                "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\render\\reimbursement_summary\\page-1.png"
+              ],
+              "render_pdf_path": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\render\\reimbursement_summary\\reimbursement_summary.pdf",
+              "sha256": "8e34a59c1cfcb76ea327cb2e2020badb0b012937b14f42c9f3901977fd385ab8",
+              "source_docx": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\reimbursement_summary.docx",
+              "source_sha256": "4288d9dcfab4019706af7f0c3e5e46cf130ca0fc3736f6011896f6b1df743893",
+              "staged_path": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\reimbursement_summary.pdf",
+              "summary": "已通过 DOCX 渲染、PDF 结构和页面检查的正式 PDF 草稿",
+              "validation": {
+                "approved": true,
+                "findings": [],
+                "page_count": 1,
+                "text_page_count": 1
+              }
+            }
+          },
+          "sequence": 5,
+          "timestamp": "2026-08-10T06:58:11.108462+00:00"
+        },
+        {
+          "event_type": "status_changed",
+          "payload": {
+            "from": "draft",
+            "to": "planned"
+          },
+          "sequence": 6,
+          "timestamp": "2026-08-10T06:58:11.134462+00:00"
+        },
+        {
+          "event_type": "plan_created",
+          "payload": {
+            "decisions": [
+              {
+                "action_id": "reimbursement-commit-xlsx",
+                "effect": "ask",
+                "reason": "写入产物需要确认",
+                "requires_confirmation": true
+              },
+              {
+                "action_id": "reimbursement-commit-pdf",
+                "effect": "ask",
+                "reason": "写入产物需要确认",
+                "requires_confirmation": true
+              },
+              {
+                "action_id": "reimbursement-commit-eml",
+                "effect": "ask",
+                "reason": "写入产物需要确认",
+                "requires_confirmation": true
+              }
+            ],
+            "plan": "读取支付流水、发票和规则文档，生成核对产物；人工确认一次后交付 XLSX、PDF 和未发送邮件草稿。"
+          },
+          "sequence": 7,
+          "timestamp": "2026-08-10T06:58:11.149462+00:00"
+        },
+        {
+          "event_type": "status_changed",
+          "payload": {
+            "from": "planned",
+            "to": "awaiting_confirmation"
+          },
+          "sequence": 8,
+          "timestamp": "2026-08-10T06:58:11.153464+00:00"
+        },
+        {
+          "event_type": "confirmation",
+          "payload": {
+            "approved": true
+          },
+          "sequence": 9,
+          "timestamp": "2026-08-10T06:58:24.555571+00:00"
+        },
+        {
+          "event_type": "status_changed",
+          "payload": {
+            "from": "awaiting_confirmation",
+            "to": "executing"
+          },
+          "sequence": 10,
+          "timestamp": "2026-08-10T06:58:24.559573+00:00"
+        },
+        {
+          "event_type": "artifact_bundle_preflight_passed",
+          "payload": {
+            "artifact_count": 3,
+            "artifacts": [
+              "<recorded-run-2>\\deliveries\\flagged_payments.xlsx",
+              "<recorded-run-2>\\deliveries\\reimbursement_summary.pdf",
+              "<recorded-run-2>\\deliveries\\reimbursement_review.eml"
+            ]
+          },
+          "sequence": 11,
+          "timestamp": "2026-08-10T06:58:24.598570+00:00"
+        },
+        {
+          "event_type": "tool_requested",
+          "payload": {
+            "action_id": "reimbursement-commit-xlsx",
+            "decision": {
+              "effect": "ask",
+              "reason": "写入产物需要确认",
+              "requires_confirmation": true
+            },
+            "params": {
+              "destination": "<recorded-run-2>\\deliveries\\flagged_payments.xlsx"
+            },
+            "risk_level": "R3",
+            "tool": "spreadsheet.commit"
+          },
+          "sequence": 12,
+          "timestamp": "2026-08-10T06:58:24.602568+00:00"
+        },
+        {
+          "event_type": "tool_policy_decided",
+          "payload": {
+            "action_id": "reimbursement-commit-xlsx",
+            "decision": {
+              "effect": "ask",
+              "reason": "写入产物需要确认",
+              "requires_confirmation": true
+            },
+            "params": {
+              "destination": "<recorded-run-2>\\deliveries\\flagged_payments.xlsx"
+            },
+            "risk_level": "R3",
+            "tool": "spreadsheet.commit"
+          },
+          "sequence": 13,
+          "timestamp": "2026-08-10T06:58:24.603569+00:00"
+        },
+        {
+          "event_type": "tool_completed",
+          "payload": {
+            "action_id": "reimbursement-commit-xlsx",
+            "tool": "spreadsheet.commit"
+          },
+          "sequence": 14,
+          "timestamp": "2026-08-10T06:58:24.612594+00:00"
+        },
+        {
+          "event_type": "tool_verified",
+          "payload": {
+            "action_id": "reimbursement-commit-xlsx",
+            "tool": "spreadsheet.commit"
+          },
+          "sequence": 15,
+          "timestamp": "2026-08-10T06:58:24.625090+00:00"
+        },
+        {
+          "event_type": "artifact_committed",
+          "payload": {
+            "final_path": "<recorded-run-2>\\deliveries\\flagged_payments.xlsx",
+            "kind": "xlsx",
+            "sha256": "5ff5e3e52058fb154956c046ab52173470daab612f6a2e206590dbec5db24494",
+            "staged_path": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\flagged_payments.xlsx",
+            "summary": "交付报销异常项工作簿"
+          },
+          "sequence": 16,
+          "timestamp": "2026-08-10T06:58:24.632088+00:00"
+        },
+        {
+          "event_type": "tool_requested",
+          "payload": {
+            "action_id": "reimbursement-commit-pdf",
+            "decision": {
+              "effect": "ask",
+              "reason": "写入产物需要确认",
+              "requires_confirmation": true
+            },
+            "params": {
+              "destination": "<recorded-run-2>\\deliveries\\reimbursement_summary.pdf"
+            },
+            "risk_level": "R3",
+            "tool": "document.commit_pdf"
+          },
+          "sequence": 17,
+          "timestamp": "2026-08-10T06:58:24.637091+00:00"
+        },
+        {
+          "event_type": "tool_policy_decided",
+          "payload": {
+            "action_id": "reimbursement-commit-pdf",
+            "decision": {
+              "effect": "ask",
+              "reason": "写入产物需要确认",
+              "requires_confirmation": true
+            },
+            "params": {
+              "destination": "<recorded-run-2>\\deliveries\\reimbursement_summary.pdf"
+            },
+            "risk_level": "R3",
+            "tool": "document.commit_pdf"
+          },
+          "sequence": 18,
+          "timestamp": "2026-08-10T06:58:24.639090+00:00"
+        },
+        {
+          "event_type": "tool_completed",
+          "payload": {
+            "action_id": "reimbursement-commit-pdf",
+            "tool": "document.commit_pdf"
+          },
+          "sequence": 19,
+          "timestamp": "2026-08-10T06:58:24.652609+00:00"
+        },
+        {
+          "event_type": "tool_verified",
+          "payload": {
+            "action_id": "reimbursement-commit-pdf",
+            "tool": "document.commit_pdf"
+          },
+          "sequence": 20,
+          "timestamp": "2026-08-10T06:58:24.660634+00:00"
+        },
+        {
+          "event_type": "artifact_committed",
+          "payload": {
+            "final_path": "<recorded-run-2>\\deliveries\\reimbursement_summary.pdf",
+            "kind": "pdf",
+            "sha256": "8e34a59c1cfcb76ea327cb2e2020badb0b012937b14f42c9f3901977fd385ab8",
+            "staged_path": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\reimbursement_summary.pdf",
+            "summary": "交付经过渲染检查的报销核对摘要 PDF"
+          },
+          "sequence": 21,
+          "timestamp": "2026-08-10T06:58:24.665608+00:00"
+        },
+        {
+          "event_type": "tool_requested",
+          "payload": {
+            "action_id": "reimbursement-commit-eml",
+            "decision": {
+              "effect": "ask",
+              "reason": "写入产物需要确认",
+              "requires_confirmation": true
+            },
+            "params": {
+              "auto_deliver": false,
+              "destination": "<recorded-run-2>\\deliveries\\reimbursement_review.eml"
+            },
+            "risk_level": "R2",
+            "tool": "mail.commit_eml"
+          },
+          "sequence": 22,
+          "timestamp": "2026-08-10T06:58:24.669606+00:00"
+        },
+        {
+          "event_type": "tool_policy_decided",
+          "payload": {
+            "action_id": "reimbursement-commit-eml",
+            "decision": {
+              "effect": "ask",
+              "reason": "写入产物需要确认",
+              "requires_confirmation": true
+            },
+            "params": {
+              "auto_deliver": false,
+              "destination": "<recorded-run-2>\\deliveries\\reimbursement_review.eml"
+            },
+            "risk_level": "R2",
+            "tool": "mail.commit_eml"
+          },
+          "sequence": 23,
+          "timestamp": "2026-08-10T06:58:24.670607+00:00"
+        },
+        {
+          "event_type": "tool_completed",
+          "payload": {
+            "action_id": "reimbursement-commit-eml",
+            "tool": "mail.commit_eml"
+          },
+          "sequence": 24,
+          "timestamp": "2026-08-10T06:58:24.682330+00:00"
+        },
+        {
+          "event_type": "tool_verified",
+          "payload": {
+            "action_id": "reimbursement-commit-eml",
+            "tool": "mail.commit_eml"
+          },
+          "sequence": 25,
+          "timestamp": "2026-08-10T06:58:24.697331+00:00"
+        },
+        {
+          "event_type": "artifact_committed",
+          "payload": {
+            "final_path": "<recorded-run-2>\\deliveries\\reimbursement_review.eml",
+            "kind": "eml",
+            "sha256": "60420d9ab336568a0dffadfa70484dc14a8de7c97598cdfbce459dc121bf5518",
+            "staged_path": "<recorded-run-2>\\tasks\\1fc8c34e-2a03-46f8-ae3e-cf32e3715daf\\staging\\reimbursement_review.eml",
+            "summary": "交付明确标记为未发送的报销复核邮件草稿"
+          },
+          "sequence": 26,
+          "timestamp": "2026-08-10T06:58:24.701334+00:00"
+        },
+        {
+          "event_type": "status_changed",
+          "payload": {
+            "from": "executing",
+            "to": "succeeded"
+          },
+          "sequence": 27,
+          "timestamp": "2026-08-10T06:58:24.705329+00:00"
+        }
+      ]
+    }
+  ]
+}

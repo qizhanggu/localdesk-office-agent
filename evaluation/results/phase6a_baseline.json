@@ -1,0 +1,58 @@
+{
+  "command": [
+    "<WORKSPACE>\\.venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_desktop_foundation.py",
+    "tests/test_desktop_reporting.py",
+    "tests/test_grounded_renderer.py",
+    "tests/test_file_workflow.py",
+    "tests/test_desktop_computer_use.py",
+    "tests/test_dashboard.py",
+    "tests/test_job_materials.py",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "<SYSTEM_TEMP>\\localdesk-phase6a-0w9mrste"
+  ],
+  "evaluation_task_set": {
+    "by_type": {
+      "docx_quality": 1,
+      "feedback_revision": 1,
+      "job_materials": 1,
+      "regression": 1,
+      "reviewer_warning": 1,
+      "risk_tiering": 1,
+      "task_board": 1,
+      "web_evidence": 1
+    },
+    "path": "evaluation/phase6a_tasks.json",
+    "task_count": 8
+  },
+  "measured_metrics": {
+    "desktop_regression_pass_rate": 1.0
+  },
+  "not_measured": [
+    "arbitrary_website_search_success_rate",
+    "real_job_application_quality",
+    "automatic_external_submission",
+    "arbitrary_third_party_GUI_success_rate"
+  ],
+  "notes": [
+    "Offline tests use fake browser and DOCX renderer where deterministic isolation is required.",
+    "Real public-web Trace and real LibreOffice rendering are recorded by separate acceptance scripts."
+  ],
+  "phase": "phase6a",
+  "pytest_return_code": 0,
+  "recorded_at": "2026-07-22T07:57:57.281779+00:00",
+  "schema_version": 1,
+  "scope": "controlled Desktop Runtime baseline plus risk-tiered delivery, Trace board, and job-materials workflow",
+  "test_summary": {
+    "error": 0,
+    "executed": 55,
+    "failed": 0,
+    "passed": 54,
+    "skipped": 1
+  }
+}

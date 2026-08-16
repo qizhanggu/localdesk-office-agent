@@ -15,14 +15,14 @@ from pathlib import Path
 
 import pytest
 
-from mewcode.cache import FileCache
-from mewcode.config import WorktreeConfig, load_config
-from mewcode.worktree.changes import count_worktree_changes, has_worktree_changes
-from mewcode.worktree.integration import build_worktree_notice, generate_worktree_name
-from mewcode.worktree.manager import WorktreeError, WorktreeManager
-from mewcode.worktree.models import WorktreeSession
-from mewcode.worktree.session import load_worktree_session, save_worktree_session
-from mewcode.worktree.slug import flatten_slug, validate_slug
+from localdesk.cache import FileCache
+from localdesk.config import WorktreeConfig, load_config
+from localdesk.worktree.changes import count_worktree_changes, has_worktree_changes
+from localdesk.worktree.integration import build_worktree_notice, generate_worktree_name
+from localdesk.worktree.manager import WorktreeError, WorktreeManager
+from localdesk.worktree.models import WorktreeSession
+from localdesk.worktree.session import load_worktree_session, save_worktree_session
+from localdesk.worktree.slug import flatten_slug, validate_slug
 
 # =========================================================================
 # A. Slug 校验

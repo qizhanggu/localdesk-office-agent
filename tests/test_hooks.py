@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 import pytest
 
-from mewcode.hooks import (
+from localdesk.hooks import (
     Action,
     ActionResult,
     Condition,
@@ -232,7 +232,7 @@ class TestConditionGroupEvaluate:
 class TestCommandExecutor:
     @pytest.mark.asyncio
     async def test_normal_execution(self):
-        from mewcode.hooks.executors import execute_command
+        from localdesk.hooks.executors import execute_command
 
         action = Action(type="command", command="echo hello")
         ctx = HookContext()
@@ -242,7 +242,7 @@ class TestCommandExecutor:
 
     @pytest.mark.asyncio
     async def test_variable_substitution(self):
-        from mewcode.hooks.executors import execute_command
+        from localdesk.hooks.executors import execute_command
 
         action = Action(type="command", command="echo $FILE_PATH")
         ctx = HookContext(file_path="src/main.py")
@@ -251,7 +251,7 @@ class TestCommandExecutor:
 
     @pytest.mark.asyncio
     async def test_timeout(self):
-        from mewcode.hooks.executors import execute_command
+        from localdesk.hooks.executors import execute_command
 
         action = Action(type="command", command="sleep 10", timeout=1)
         ctx = HookContext()
@@ -262,7 +262,7 @@ class TestCommandExecutor:
 class TestPromptExecutor:
     @pytest.mark.asyncio
     async def test_returns_message(self):
-        from mewcode.hooks.executors import execute_prompt
+        from localdesk.hooks.executors import execute_prompt
 
         action = Action(type="prompt", message="Hello $TOOL_NAME")
         ctx = HookContext(tool_name="WriteFile")
@@ -273,12 +273,12 @@ class TestPromptExecutor:
 class TestHttpExecutor:
     @pytest.mark.asyncio
     async def test_mock_request(self):
-        from mewcode.hooks.executors import execute_http
+        from localdesk.hooks.executors import execute_http
 
         action = Action(type="http", url="https://httpbin.org/post", body='{"test": true}')
         ctx = HookContext()
         # 用 mock 避免发起真实的网络请求
-        with patch("mewcode.hooks.executors.urlopen") as mock_urlopen:
+        with patch("localdesk.hooks.executors.urlopen") as mock_urlopen:
             mock_resp = mock_urlopen.return_value.__enter__.return_value
             mock_resp.status = 200
             mock_resp.read.return_value = b'{"ok": true}'
@@ -289,7 +289,7 @@ class TestHttpExecutor:
 class TestAgentExecutor:
     @pytest.mark.asyncio
     async def test_stub(self):
-        from mewcode.hooks.executors import execute_agent
+        from localdesk.hooks.executors import execute_agent
 
         action = Action(type="agent", prompt="Check $FILE_PATH")
         ctx = HookContext(file_path="test.py")
@@ -300,7 +300,7 @@ class TestAgentExecutor:
 class TestExecuteAction:
     @pytest.mark.asyncio
     async def test_dispatch(self):
-        from mewcode.hooks.executors import execute_action
+        from localdesk.hooks.executors import execute_action
 
         action = Action(type="command", command="echo dispatch_test")
         ctx = HookContext()
@@ -309,7 +309,7 @@ class TestExecuteAction:
 
     @pytest.mark.asyncio
     async def test_unknown_type(self):
-        from mewcode.hooks.executors import execute_action
+        from localdesk.hooks.executors import execute_action
 
         action = Action(type="unknown")
         ctx = HookContext()
@@ -512,11 +512,11 @@ class TestAgentHookIntegration:
 
     @pytest.mark.asyncio
     async def test_pre_tool_use_reject_skips_tool(self):
-        from mewcode.agent import Agent, ToolResultEvent
-        from mewcode.client import LLMClient
-        from mewcode.conversation import ConversationManager
-        from mewcode.tools import create_default_registry
-        from mewcode.tools.base import StreamEnd, StreamEvent, TextDelta, ToolCallComplete
+        from localdesk.agent import Agent, ToolResultEvent
+        from localdesk.client import LLMClient
+        from localdesk.conversation import ConversationManager
+        from localdesk.tools import create_default_registry
+        from localdesk.tools.base import StreamEnd, StreamEvent, TextDelta, ToolCallComplete
 
         class MockClient(LLMClient):
             def __init__(self):
